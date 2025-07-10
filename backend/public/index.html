@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Bot Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Twitter Bot Dashboard</h1>
+            <nav>
+                <button id="uploadBtn">Upload Document</button>
+                <button id="generateBtn">Generate Tweets</button>
+                <button id="scheduleBtn">Schedule Tweets</button>
+                <button id="statsBtn">View Stats</button>
+            </nav>
+        </header>
+
+        <main>
+            <div id="uploadModal" class="modal">
+                <div class="modal-content">
+                    <h2>Upload Document</h2>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <input type="file" id="document" name="document" accept=".pdf,.docx,.txt" required>
+                        <button type="submit">Upload</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="documentsList" class="section">
+                <h2>Uploaded Documents</h2>
+                <div id="documentsGrid"></div>
+            </div>
+
+            <div id="tweetsList" class="section">
+                <h2>Tweets</h2>
+                <div id="tweetsGrid"></div>
+            </div>
+
+            <div id="statsView" class="section">
+                <h2>Tweet Statistics</h2>
+                <div id="statsGrid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
