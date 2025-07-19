@@ -6,7 +6,12 @@ const linkedinController = require('../controllers/linkedinController');
 router.get('/auth/url', linkedinController.getAuthUrl);
 router.get('/auth/callback', linkedinController.handleCallback);
 
-// LinkedIn posting
+// Content generation endpoints
+router.post('/generate', linkedinController.generatePost);
+router.post('/generate/variations', linkedinController.generatePostVariations);
+
+// Posting endpoints
 router.post('/post', linkedinController.postContent);
+router.post('/generate-and-post', linkedinController.generateAndPost);
 
 module.exports = router;
