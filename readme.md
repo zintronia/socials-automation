@@ -1,4 +1,4 @@
-# AI Marketing Automation SAAS Platform
+<!-- # AI Marketing Automation SAAS Platform
 ## Complete Product Documentation & Business Plan
 
 ---
@@ -282,4 +282,162 @@ The key to success will be:
 3. **Platform Integration**: Seamless workflow across all social platforms
 4. **Customer Success**: Measurable improvement in marketing ROI
 
-With the right execution, this could become a $100M+ ARR business within 3-5 years, fundamentally changing how businesses approach social media marketing.
+With the right execution, this could become a $100M+ ARR business within 3-5 years, fundamentally changing how businesses approach social media marketing. -->
+
+
+
+Your document is already very strong and compelling. Below is an **updated version** with the **enhanced features you discussed**, integrated cleanly into relevant sections. These include improvements like context-type handling, user-controlled generation preferences, multi-post output per context, and more.
+
+---
+
+# ✅ UPDATED: AI Marketing Automation SaaS Platform
+
+## Complete Product Documentation & Business Plan
+
+---
+
+## 🎯 Executive Summary
+
+**Product Vision**: Replace human marketing teams with AI-powered automation that understands business context, generates engaging content, and continuously learns from social performance.
+
+**Value Proposition**: One AI system that replaces content creators, social media managers, analysts, and strategists—at a fraction of the cost.
+
+---
+
+## 🧠 Core AI Intelligence System
+
+### 1. Context Understanding Engine
+
+* **Multi-Modal Context Sources**:
+
+  * **Document Upload**: PDF, DOCX, etc.
+  * **YouTube Link**: AI extracts key content from video/audio transcripts
+  * **Manual Input**: User enters a custom brief or paragraph
+* **Context Metadata**: Captures content type, title, source, and tone preference
+* **Context Dashboard**: Each context has a unique page showing source, extracted content, generated posts, and post statuses
+* **Industry Intelligence**: Learns sector-specific tone, jargon, and strategies
+
+### 2. Information Refinement & Brainstorming
+
+* **User-Directed Input Refinement**: UI allows users to modify extracted content or adjust before generation
+* **Post Style & Tone Selection**: Dropdowns in UI let users choose:
+
+  * Tone (Engaging, Professional, Humorous, Motivational)
+  * Format (Hook, Thread, Announcement, Educational, etc.)
+* **Multi-Post Generation**: From each context, 3–10 posts are generated with different angles
+* **Post Filtering**: Users select which outputs to approve, discard, or regenerate
+
+### 3. Platform-Specific Content Generation
+
+* **Per-Platform Instruction Mapping**: Each platform has tailored AI behavior:
+
+  * Twitter → Concise, viral hooks
+  * LinkedIn → Thought leadership
+  * Instagram → Visual storytelling + captions
+  * Facebook → Community/brand presence
+  * TikTok → Trend-driven, short scripts
+* **Future Additions**: Threads, carousels, polls, and story formats
+
+---
+
+## 🎨 Visual Content Creation System
+
+✅ *No changes needed here – very comprehensive already.*
+
+---
+
+## 📊 Approval & Publishing Workflow
+
+### Enhanced Workflow Additions
+
+* **Context-First Navigation**: Users manage content by context (each campaign or idea)
+* **Context Cards**: Show # of posts generated, platforms targeted, and status (Draft/Scheduled/Posted)
+* **Single Context View**: Preview full original context source (uploaded doc, video, or text), extracted content, and all generated content in one place
+* **Manual Overrides**: Option to tweak AI text directly before approval
+
+---
+
+## 🧪 Continuous Learning & Optimization
+
+✅ Already excellent — consider adding:
+
+* **Context-Based Learning**: AI learns not just from posts but from the **source type + user edits**
+* **Regeneration Signals**: When users regenerate a post, AI learns what didn't work
+
+---
+
+## 🏢 Target Market & Pricing Strategy
+
+✅ No structural changes needed, though you can **highlight support for different team sizes**:
+
+* Solo: Manual input
+* SMBs: YouTube/document context
+* Agencies: Upload multiple briefs, batch content generation
+
+---
+
+## 🔧 Technical Architecture
+
+### Added Components
+
+* **Context Database Schema**
+
+  * Fields: `id`, `user_id`, `context_type`, `source_url`, `extracted_text`, `status`, `tone`, `platform_preferences`
+* **Content Instruction Layer**
+
+  * Per-platform tone/style settings per user or per post
+  * System for mapping dropdown UI selections to prompt engineering patterns
+* **Post Versioning**
+
+  * Users can view/revert to older AI-generated versions
+* **Context → Post Relationship**
+
+  * One-to-many (one context generates many posts)
+
+---
+
+## 🚀 Go-to-Market Strategy
+
+### Minor Addition
+
+* In **MVP Launch (Months 1-3)**:
+  ✅ Include context types: document upload, YouTube, manual
+
+---
+
+## 💰 Competitive Advantages
+
+### vs. Okoya
+
+* **Context-Aware Generation**: Not just text input—context is understood and processed from files, video, or briefs
+* **Multi-Post Options**: Generates multiple versions per platform, not just one
+* **Post Filtering & Selection**: Users select tone, style, and platform before generation
+* **Smarter Content Reuse**: Same context → auto-adapted across multiple platforms
+
+---
+
+## 📈 Key Success Metrics
+
+Add:
+
+* **Context Engagement Score**: Avg # of posts generated, approved, and posted per context
+* **Post Selection Rate**: % of generated posts that are user-approved
+
+---
+
+## 🎯 Future Expansion Opportunities
+
+### New Additions
+
+* **Context Type Expansion**: Slack threads, Google Docs, podcasts
+* **Instruction Templates**: Save commonly used tone/platform setups
+* **AI Training on Your Brand**: Let users upload previous posts to fine-tune generation
+* **Multilingual + Multicultural Tone**: Not just language support but regional tone adaptation
+
+---
+
+## ✅ Summary
+
+You've now positioned your platform as an intelligent, context-aware **end-to-end AI marketing assistant**, not just a social scheduler. These added features—especially **multi-source context input**, **platform-tailored generation**, and **instructional control UI**—significantly differentiate you from current players like Okoya, Hootsuite, or Jasper.
+
+Let me know if you want a **revised database schema** or **UI wireframes** next.

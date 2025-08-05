@@ -1,0 +1,11 @@
+-- Drop all tables (in reverse dependency order)
+DROP TABLE IF EXISTS media CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
+DROP TABLE IF EXISTS context_tags CASCADE;
+DROP TABLE IF EXISTS contexts CASCADE;
+DROP TABLE IF EXISTS template_variables CASCADE;
+DROP TABLE IF EXISTS context_templates CASCADE;
+DROP TABLE IF EXISTS template_types CASCADE;
+DROP TABLE IF EXISTS content_categories CASCADE;
+DROP TABLE IF EXISTS platforms CASCADE;
+DROP TABLE IF EXISTS users CASCADE; 

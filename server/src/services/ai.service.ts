@@ -1,0 +1,150 @@
+import OpenAI from 'openai';
+import { config } from '../config/environment';
+import { logger } from '../utils/logger.utils';
+import { ContextTemplate, Context, Platform, AIGenerationRequest, AIGenerationResponse } from '../types';
+
+class AIService {
+    private openai: OpenAI;
+
+    constructor() {
+        this.openai = new OpenAI({
+            apiKey: config.ai.apiKey,
+        });
+    }
+
+    async generatePost(request: AIGenerationRequest): Promise<AIGenerationResponse> {
+        try {
+            const { context, template, platform } = request;
+            const systemPrompt = this.buildSystemPrompt(template, platform);
+            const userPrompt = this.buildUserPrompt(context, template);
+            const completion = await this.openai.chat.completions.create({
+                model: config.ai.model,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                max_tokens: config.ai.maxTokens,
+                temperature: 0.7,
+            });
+            const generatedContent = completion.choices[0]?.message?.content;
+            if (!generatedContent) throw new Error('No content generated from AI');
+            return {
+                content: generatedContent,
+                usage: completion.usage,
+                model: completion.model,
+            };
+        } catch (error) {
+            logger.error('AI generation error:', error);
+            throw new Error('Failed to generate content');
+        }
+    }
+
+    private buildSystemPrompt(template: ContextTemplate, platform: Platform): string {
+        const baseInstructions = `
+You are an expert social media content creator specializing in ${platform.name} content.
+
+PLATFORM CONSTRAINTS:
+- Maximum content length: ${platform.max_content_length} characters
+- Supported media types: ${platform.supported_media_types?.join(', ')}
+- Platform-specific rules: ${JSON.stringify(platform.platform_constraints)}
+
+CONTENT REQUIREMENTS:
+- Tone: ${template.tone}
+- Writing Style: ${template.writing_style}
+- Target Audience: ${template.target_audience}
+- Content Category: ${template.category_id}
+
+TEMPLATE INSTRUCTIONS:
+${template.system_instructions}
+
+FORMATTING RULES:
+${this.getPlatformFormattingRules(platform)}
+
+ENGAGEMENT OPTIMIZATION:
+- Include ${template.use_hashtags ? `up to ${template.max_hashtags} relevant hashtags` : 'no hashtags'}
+- Hashtag strategy: ${template.hashtag_strategy}
+- Include call-to-action: ${template.include_cta ? 'Yes' : 'No'}
+- CTA Type: ${template.cta_type}
+- Engagement level: ${template.engagement_level}
+
+OUTPUT FORMAT:
+Return ONLY the final post content, properly formatted for ${platform.name}.
+Do not include explanations or metadata.
+    `;
+        return baseInstructions.trim();
+    }
+
+    private buildUserPrompt(context: Context, template: ContextTemplate): string {
+        let prompt = `
+CONTENT SOURCE:
+Title: ${context.title}
+Topic: ${context.topic || 'Not specified'}
+Brief: ${context.brief || 'Not provided'}
+
+MAIN CONTENT:
+${context.content}
+
+ADDITIONAL CONTEXT:
+- Language: ${context.language}
+- Region: ${context.region || 'Global'}
+- Source Type: ${context.type}
+    `;
+        if (context.template_variables) {
+            prompt += `\n\nTEMPLATE VARIABLES:\n`;
+            Object.entries(context.template_variables).forEach(([key, value]) => {
+                prompt += `- ${key}: ${value}\n`;
+            });
+        }
+        prompt += this.getCategorySpecificInstructions(template?.category_id);
+        prompt += `\n\nGenerate an engaging ${template.tone} post that will resonate with ${template.target_audience}.`;
+        return prompt.trim();
+    }
+
+    private getPlatformFormattingRules(platform: Platform): string {
+        const rules: Record<string, string> = {
+            'Twitter': `
+- Keep it concise and punchy
+- Use line breaks for readability
+- Include relevant hashtags at the end
+- Consider thread format for longer content
+      `,
+            'LinkedIn': `
+- Start with a compelling hook
+- Use professional language
+- Include paragraph breaks
+- End with a thought-provoking question
+- Use relevant professional hashtags
+      `,
+            'Instagram': `
+- Start with an attention-grabbing first line
+- Use emojis strategically
+- Include line breaks for readability
+- Use a mix of popular and niche hashtags
+- Include a clear call-to-action
+      `,
+            'Facebook': `
+- Write in a conversational tone
+- Use storytelling when appropriate
+- Include engaging questions
+- Use minimal hashtags (2-3 max)
+      `
+        };
+        return rules[platform.name] || 'Follow general social media best practices';
+    }
+
+    private getCategorySpecificInstructions(categoryId?: number): string {
+        if (!categoryId) return '';
+
+        const instructions: Record<number, string> = {
+            1: '\nFocus on promotional messaging while providing value to the audience.',
+            2: '\nPrioritize educational value and actionable insights.',
+            3: '\nMaximize engagement potential with questions and interactive elements.',
+            4: '\nCreate entertaining content that brings joy and shareability.',
+            5: '\nPresent information clearly and objectively.',
+            6: '\nUse authentic, personal storytelling approach.',
+        };
+        return instructions[categoryId] || '';
+    }
+}
+
+export const aiService = new AIService(); 
