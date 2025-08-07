@@ -12,6 +12,7 @@ import {
   Settings2,
   SquareTerminal,
   StickyNote,
+  Share2,
   type LucideIcon,
 } from "lucide-react"
 
@@ -100,7 +101,18 @@ const navItems: NavItem[] = [
       }
     ],
   },
-
+  {
+    title: "Social Media",
+    icon: Share2,
+    isActive: true,
+    items: [
+      {
+        title: "Social Accounts",
+        url: "/social",
+        icon: Share2,
+      },
+    ],
+  },
   {
     title: "Connect",
     url: "/connect",

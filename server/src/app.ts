@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 // import dotenv from 'dotenv'; // Loaded in config/environment
 import { config } from './config/environment';
 import { database } from './config/database';
+import { redisService } from './config/redis';
 import { logger } from './utils/logger.utils';
 import { errorMiddleware } from './middleware/error.middleware';
 import { rateLimitMiddleware } from './middleware/rate-limit.middleware';
@@ -16,12 +17,16 @@ import { templateRoutes } from './routes/template.routes';
 import { postRoutes } from './routes/post.routes';
 import { platformRoutes } from './routes/platform.routes';
 import campaignRoutes from './routes/campaign.routes';
+import socialAccountRoutes from './routes/social-account.routes';
+import oauth2TwitterRoutes from './routes/oauth2-twitter.routes';
 
 class Application {
     public app: express.Application;
+    private apiPrefix: string;
 
     constructor() {
         this.app = express();
+        this.apiPrefix = `/api/${config.api.version}`;
         this.setupMiddleware();
         this.setupRoutes();
         this.setupErrorHandling();
@@ -54,15 +59,37 @@ class Application {
     }
 
     private setupRoutes(): void {
-        const apiPrefix = `/api/${config.api.version}`;
 
         // Health check
-        this.app.get('/health', (req, res) => {
-            res.json({
-                status: 'OK',
-                timestamp: new Date().toISOString(),
-                version: config.api.version
-            });
+        this.app.get('/health', async (req, res) => {
+            try {
+                // Check database connection
+                await database.query('SELECT 1');
+                const dbStatus = 'connected';
+
+                // Check Redis connection
+                const redisStatus = await redisService.ping() ? 'connected' : 'disconnected';
+
+                res.json({
+                    status: 'OK',
+                    timestamp: new Date().toISOString(),
+                    version: config.api.version,
+                    environment: config.environment,
+                    services: {
+                        database: dbStatus,
+                        redis: redisStatus
+                    }
+                });
+            } catch (error) {
+                logger.error('Health check failed:', error);
+                res.status(503).json({
+                    status: 'ERROR',
+                    timestamp: new Date().toISOString(),
+                    version: config.api.version,
+                    environment: config.environment,
+                    error: 'Service unavailable'
+                });
+            }
         });
 
         // Swagger documentation
@@ -79,12 +106,16 @@ class Application {
         }));
 
         // API routes
-        this.app.use(`${apiPrefix}/auth`, authRoutes);
-        this.app.use(`${apiPrefix}/platforms`, platformRoutes);
-        this.app.use(`${apiPrefix}/contexts`, contextRoutes);
-        this.app.use(`${apiPrefix}/templates`, templateRoutes);
-        this.app.use(`${apiPrefix}/posts`, postRoutes);
-        this.app.use(`${apiPrefix}/campaigns`, campaignRoutes);
+        this.app.use(`${this.apiPrefix}/auth`, authRoutes);
+        this.app.use(`${this.apiPrefix}/platforms`, platformRoutes);
+        this.app.use(`${this.apiPrefix}/contexts`, contextRoutes);
+        this.app.use(`${this.apiPrefix}/templates`, templateRoutes);
+        this.app.use(`${this.apiPrefix}/posts`, postRoutes);
+        this.app.use(`${this.apiPrefix}/campaigns`, campaignRoutes);
+
+        // social media integration routes
+        this.app.use(`${this.apiPrefix}/social-accounts`, socialAccountRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/twitter`, oauth2TwitterRoutes);
 
         // 404 handler
         this.app.use('*', (req, res) => {
@@ -105,6 +136,14 @@ class Application {
             // Test database connection
             await database.query('SELECT 1');
 
+            // Test Redis connection
+            const redisConnected = await redisService.ping();
+            if (redisConnected) {
+                logger.info('Redis connection established');
+            } else {
+                logger.warn('Redis connection failed - OAuth 2.0 features may not work properly');
+            }
+
             const port = config.server.port;
             this.app.listen(port, () => {
                 const baseUrl = `http://${config.server.host}:${port}`;
@@ -113,6 +152,7 @@ class Application {
                 logger.info(`- Swagger UI:     ${baseUrl}/api-docs`);
                 logger.info(`- OpenAPI Spec:   ${baseUrl}/api-docs.json`);
                 logger.info(`- Health Check:   ${baseUrl}/health`);
+                logger.info(`- API Base URL:   ${baseUrl}${this.apiPrefix}`);
             });
 
         } catch (error) {
@@ -130,12 +170,14 @@ app.start();
 process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down gracefully');
     await database.close();
+    await redisService.disconnect();
     process.exit(0);
 });
 
 process.on('SIGINT', async () => {
     logger.info('SIGINT received, shutting down gracefully');
     await database.close();
+    await redisService.disconnect();
     process.exit(0);
 });
 

@@ -35,6 +35,8 @@ console.log('Loaded environment variables:', {
     DB_USER: process.env.DB_USER ? '✓' : '✗',
     JWT_SECRET: process.env.JWT_SECRET ? '✓' : '✗',
     AI_API_KEY: process.env.AI_API_KEY ? '✓' : '✗',
+    REDIS_URL: process.env.REDIS_URL ? '✓' : '✗',
+    TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY ? '✓' : '✗',
 });
 
 interface Config {
@@ -51,6 +53,15 @@ interface Config {
         password: string;
         maxConnections: number;
         ssl: boolean;
+    };
+    redis: {
+        url: string;
+        host: string;
+        port: number;
+        password?: string;
+        db: number;
+        keyPrefix: string;
+        maxRetriesPerRequest: number;
     };
     jwt: {
         secret: string;
@@ -79,11 +90,44 @@ interface Config {
     api: {
         version: string;
     };
+    session: {
+        secret: string;
+        name: string;
+        maxAge: number;
+        secure: boolean;
+        httpOnly: boolean;
+        sameSite: 'lax' | 'strict' | 'none' | boolean;
+    };
+    oauth: {
+        tokenEncryptionKey: string;
+        stateExpiryMinutes: number;
+        pkceCodeVerifierLength: number;
+        maxRefreshAttempts: number;
+        refreshTokenExpiryDays: number;
+    };
+    twitter: {
+        apiKey: string;
+        apiSecret: string;
+        clientId: string;
+        clientSecret: string;
+        callbackUrl: string;
+        webhookEnv: string;
+        oauth2Enabled: boolean;
+    };
+    linkedin: {
+        clientId: string;
+        clientSecret: string;
+        callbackUrl: string;
+        scopes: string[];
+    };
 }
 
 const requiredEnvVars = [
     'DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD',
     'JWT_SECRET', 'AI_API_KEY', 'AI_MODEL',
+    'REDIS_URL', 'TOKEN_ENCRYPTION_KEY',
+    'TWITTER_CLIENT_ID', 'TWITTER_CLIENT_SECRET', 'TWITTER_CALLBACK_URL',
+    'LINKEDIN_CLIENT_ID', 'LINKEDIN_CLIENT_SECRET', 'LINKEDIN_CALLBACK_URL'
 ];
 
 // Validate required environment variables
@@ -106,6 +150,15 @@ export const config: Config = {
         password: process.env.DB_PASSWORD!,
         maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || '20'),
         ssl: process.env.DB_SSL === 'true'
+    },
+    redis: {
+        url: process.env.REDIS_URL!,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
+        db: parseInt(process.env.REDIS_DB || '0'),
+        keyPrefix: process.env.REDIS_KEY_PREFIX || 'social_media:',
+        maxRetriesPerRequest: parseInt(process.env.REDIS_MAX_RETRIES || '3')
     },
     jwt: {
         secret: process.env.JWT_SECRET!,
@@ -133,5 +186,41 @@ export const config: Config = {
     },
     api: {
         version: process.env.API_VERSION || 'v1'
+    },
+    session: {
+        secret: process.env.SESSION_SECRET || process.env.JWT_SECRET!,
+        name: 'sid',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax' as const,
+    },
+    oauth: {
+        tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY!,
+        stateExpiryMinutes: parseInt(process.env.OAUTH_STATE_EXPIRY_MINUTES || '10'),
+        pkceCodeVerifierLength: parseInt(process.env.PKCE_CODE_VERIFIER_LENGTH || '128'),
+        maxRefreshAttempts: parseInt(process.env.OAUTH_MAX_REFRESH_ATTEMPTS || '3'),
+        refreshTokenExpiryDays: parseInt(process.env.OAUTH_REFRESH_TOKEN_EXPIRY_DAYS || '90')
+    },
+    twitter: {
+        apiKey: process.env.TWITTER_API_KEY || '',
+        apiSecret: process.env.TWITTER_API_SECRET || '',
+        clientId: process.env.TWITTER_CLIENT_ID!,
+        clientSecret: process.env.TWITTER_CLIENT_SECRET!,
+        callbackUrl: process.env.TWITTER_CALLBACK_URL!,
+        webhookEnv: process.env.TWITTER_WEBHOOK_ENV || 'development',
+        oauth2Enabled: process.env.TWITTER_OAUTH2_ENABLED === 'true'
+    },
+    linkedin: {
+        clientId: process.env.LINKEDIN_CLIENT_ID!,
+        clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+        callbackUrl: process.env.LINKEDIN_CALLBACK_URL!,
+        scopes: process.env.LINKEDIN_SCOPES?.split(',') || [
+            'profile',
+            'email',
+            'openid',
+            'w_member_social',
+            'w_organization_social'
+        ]
     }
 }; 
