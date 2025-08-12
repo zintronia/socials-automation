@@ -120,6 +120,15 @@ interface Config {
         callbackUrl: string;
         scopes: string[];
     };
+    reddit: {
+        clientId: string;
+        clientSecret: string;
+        callbackUrl: string;
+        scopes: string[];
+        usePKCE: boolean;
+        duration: 'temporary' | 'permanent';
+        userAgent: string;
+    };
 }
 
 const requiredEnvVars = [
@@ -222,5 +231,21 @@ export const config: Config = {
             'w_member_social',
             'w_organization_social'
         ]
+    },
+    reddit: {
+        clientId: process.env.REDDIT_CLIENT_ID || '',
+        clientSecret: process.env.REDDIT_CLIENT_SECRET || '',
+        callbackUrl: process.env.REDDIT_CALLBACK_URL || '',
+        scopes: process.env.REDDIT_SCOPES?.split(',') || [
+            'identity',
+            'read',
+            'submit',
+            'vote',
+            'mysubreddits',
+            'save'
+        ],
+        usePKCE: (process.env.REDDIT_USE_PKCE || 'true') === 'true',
+        duration: (process.env.REDDIT_AUTH_DURATION as 'temporary' | 'permanent') || 'permanent',
+        userAgent: process.env.REDDIT_USER_AGENT || 'social-automation/1.0 by your-app'
     }
-}; 
+};

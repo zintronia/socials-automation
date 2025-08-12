@@ -166,15 +166,17 @@ CREATE TABLE IF NOT EXISTS social_accounts (
   CONSTRAINT check_oauth_version CHECK (oauth_version IN ('1.0a', '2.0'))
 );
 
--- Posts - now references context_id and template_id for generation
+-- Posts 
 CREATE TABLE IF NOT EXISTS posts (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id),
-  context_id INTEGER REFERENCES contexts(id), -- Links to context
+  context_id INTEGER REFERENCES contexts(id), 
   template_id INTEGER REFERENCES context_templates(id), -- NULL = no template used
   platform_id INTEGER REFERENCES platforms(id), -- Target platform
   campaign_id INTEGER REFERENCES campaigns(id) ON DELETE CASCADE,
+  social_account_id INTEGER REFERENCES social_accounts(id), -- Social account to post ,
   content TEXT NOT NULL,
+  prompt TEXT NOT NULL,
   content_type VARCHAR(50) NOT NULL DEFAULT 'text',
   hashtags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
   mentions TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
@@ -225,8 +227,8 @@ CREATE INDEX IF NOT EXISTS idx_social_accounts_oauth_version ON social_accounts(
 
 -- Insert default data for OAuth 2.0 platforms
 INSERT INTO platforms (name, type, icon_url, is_active, max_content_length, supports_media, supported_media_types, platform_constraints) VALUES 
-('Twitter OAuth2', 'social', 'https://example.com/twitter-oauth2.png', true, 280, true, ARRAY['image', 'video', 'gif'], '{"max_images": 4, "max_video_duration": 140, "thread_support": true, "oauth2_support": true}'),
-('LinkedIn OAuth2', 'social', 'https://example.com/linkedin-oauth2.png', true, 3000, true, ARRAY['image', 'video', 'document'], '{"max_images": 20, "professional_tone_preferred": true, "article_support": true, "oauth2_support": true}')
+('Twitter', 'social', 'https://example.com/twitter-oauth2.png', true, 280, true, ARRAY['image', 'video', 'gif'], '{"max_images": 4, "max_video_duration": 140, "thread_support": true, "oauth2_support": true}'),
+('LinkedIn', 'social', 'https://example.com/linkedin-oauth2.png', true, 3000, true, ARRAY['image', 'video', 'document'], '{"max_images": 20, "professional_tone_preferred": true, "article_support": true, "oauth2_support": true}')
 ON CONFLICT (name) DO UPDATE SET 
   type = EXCLUDED.type,
   is_active = EXCLUDED.is_active,

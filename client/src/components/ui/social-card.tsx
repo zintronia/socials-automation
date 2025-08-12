@@ -8,7 +8,6 @@ import {
     Share2,
     Bookmark,
     MoreHorizontal,
-    Link as LinkIcon,
 } from "lucide-react";
 import { useState } from "react";
 

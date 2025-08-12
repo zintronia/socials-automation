@@ -8,17 +8,20 @@ import { config } from './config/environment';
 import { database } from './config/database';
 import { redisService } from './config/redis';
 import { logger } from './utils/logger.utils';
-import { errorMiddleware } from './middleware/error.middleware';
-import { rateLimitMiddleware } from './middleware/rate-limit.middleware';
+import { errorMiddleware } from './api/v1/middleware/error.middleware';
+import { rateLimitMiddleware } from './api/v1/middleware/rate-limit.middleware';
 import { specs } from './config/swagger';
-import { authRoutes } from './routes/auth.routes';
-import { contextRoutes } from './routes/context.routes';
-import { templateRoutes } from './routes/template.routes';
-import { postRoutes } from './routes/post.routes';
-import { platformRoutes } from './routes/platform.routes';
-import campaignRoutes from './routes/campaign.routes';
-import socialAccountRoutes from './routes/social-account.routes';
-import oauth2TwitterRoutes from './routes/oauth2-twitter.routes';
+import { authRoutes } from './api/v1/routes/auth.routes';
+import { contextRoutes } from './api/v1/routes/context.routes';
+import { templateRoutes } from './api/v1/routes/template.routes';
+import { postRoutes } from './api/v1/routes/post.routes';
+import { platformRoutes } from './api/v1/routes/platform.routes';
+import campaignRoutes from './api/v1/routes/campaign.routes';
+import socialAccountRoutes from './api/v1/routes/social-account.routes';
+import oauth2TwitterRoutes from './api/v1/routes/oauth2-twitter.routes';
+import oauth2LinkedInRoutes from './api/v1/routes/oauth2-linkedin.routes';
+import oauth2RedditRoutes from './api/v1/routes/oauth2-reddit.routes';
+import { initPostScheduler } from './jobs/post-scheduler';
 
 class Application {
     public app: express.Application;
@@ -116,6 +119,8 @@ class Application {
         // social media integration routes
         this.app.use(`${this.apiPrefix}/social-accounts`, socialAccountRoutes);
         this.app.use(`${this.apiPrefix}/oauth2/twitter`, oauth2TwitterRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/linkedin`, oauth2LinkedInRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/reddit`, oauth2RedditRoutes);
 
         // 404 handler
         this.app.use('*', (req, res) => {
@@ -154,6 +159,9 @@ class Application {
                 logger.info(`- Health Check:   ${baseUrl}/health`);
                 logger.info(`- API Base URL:   ${baseUrl}${this.apiPrefix}`);
             });
+
+            // Initialize post scheduler (dev: node-cron, prod: BullMQ)
+            await initPostScheduler();
 
         } catch (error) {
             logger.error('Failed to start application:', error);

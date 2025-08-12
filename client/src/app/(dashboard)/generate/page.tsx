@@ -1,7 +1,7 @@
 'use client';
 
-import { AI_Prompt } from '@/components/animated-ai-input';
-import { CardsCarouselDemo } from '@/components/cards-carousel';
+import { AI_Prompt } from '@/components/ai-input/animated-ai-input';
+import { PostCards } from '@/components/post-cards/post-cards';
 import { useCreateContextMutation } from '@/features/context';
 import { useGeneratePostMutation } from '@/features/posts';
 import { toast } from 'sonner';
@@ -51,7 +51,7 @@ const GeneratePage = () => {
 
     return (
         <div className='h-[calc(100vh-4rem)] w-full flex flex-col items-center justify-between'>
-            <CardsCarouselDemo posts={posts} />
+            <PostCards posts={posts} />
             <AI_Prompt
                 handleGenerate={handleGenerate}
                 isSubmitting={isLoading}

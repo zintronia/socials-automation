@@ -7,9 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import { useGetPostsQuery } from '../services/postApi';
-import { CardsCarouselDemo } from '@/components/cards-carousel';
+import { PostCards } from '@/components/post-cards/post-cards';
 import { PostFilters } from '../types';
-import { mockPlatforms } from '@/lib/constant';
+import { socialPlatforms } from '@/lib/constant';
 
 interface PostsProps {
   showFilters?: boolean;
@@ -134,7 +134,7 @@ const Posts: React.FC<PostsProps> = ({ showFilters = true }) => {
                 className="px-3 py-2 border border-input bg-background rounded-md text-sm"
               >
                 <option value={0}>All Platforms</option>
-                {mockPlatforms.map(platform => (
+                {socialPlatforms.map(platform => (
                   <option key={platform.id} value={platform.id}>
                     {platform.name}
                   </option>
@@ -163,7 +163,7 @@ const Posts: React.FC<PostsProps> = ({ showFilters = true }) => {
       {/* Posts Display */}
       {!isLoading && posts.length > 0 && (
         <div className="space-y-4">
-          <CardsCarouselDemo posts={posts} />
+          <PostCards posts={posts} />
         </div>
       )}
 

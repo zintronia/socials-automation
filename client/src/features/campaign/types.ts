@@ -1,3 +1,5 @@
+import { Post } from "../posts";
+
 export interface Campaign {
   id: number;
   user_id: number;
@@ -5,6 +7,7 @@ export interface Campaign {
   description?: string;
   created_at: string;
   updated_at: string;
+  posts: Post[];
 }
 
 export interface CampaignState {

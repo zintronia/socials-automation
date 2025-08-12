@@ -91,11 +91,12 @@ export class SocialAccountService {
         'SELECT * FROM social_accounts WHERE id = $1',
         [id]
       );
-
       const account = rows[0];
-      if (account?.platform_data) {
-        account.platform_data = JSON.parse(account.platform_data);
-      }
+      // if (account?.platform_data) {
+      //   logger.info(`Social account found------------------------`, account.platform_data);
+
+      //   account.platform_data = JSON.parse(account.platform_data);
+      // }
 
       return account;
     } catch (error) {
@@ -123,8 +124,8 @@ export class SocialAccountService {
         let platformData = {};
         if (account.platform_data) {
           try {
-            platformData = typeof account.platform_data === 'string' 
-              ? JSON.parse(account.platform_data) 
+            platformData = typeof account.platform_data === 'string'
+              ? JSON.parse(account.platform_data)
               : account.platform_data;
           } catch (e) {
             logger.warn('Failed to parse platform_data for account:', account.id, e);
@@ -167,7 +168,7 @@ export class SocialAccountService {
         `UPDATE social_accounts 
          SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
          WHERE id = $${paramIndex} 
-         RETURNING *`,
+         RETURNING * `,
         values
       );
 
@@ -225,7 +226,7 @@ export class SocialAccountService {
         WHERE sa.user_id = $1 
           AND sa.is_active = true 
           AND sa.connection_status = 'connected'
-      `;
+        `;
       const params = [userId];
 
       if (platformId) {
@@ -242,8 +243,8 @@ export class SocialAccountService {
         let platformData = {};
         if (account.platform_data) {
           try {
-            platformData = typeof account.platform_data === 'string' 
-              ? JSON.parse(account.platform_data) 
+            platformData = typeof account.platform_data === 'string'
+              ? JSON.parse(account.platform_data)
               : account.platform_data;
           } catch (e) {
             logger.warn('Failed to parse platform_data for account:', account.id, e);
@@ -276,8 +277,8 @@ export class SocialAccountService {
         let platformData = {};
         if (account.platform_data) {
           try {
-            platformData = typeof account.platform_data === 'string' 
-              ? JSON.parse(account.platform_data) 
+            platformData = typeof account.platform_data === 'string'
+              ? JSON.parse(account.platform_data)
               : account.platform_data;
           } catch (e) {
             logger.warn('Failed to parse platform_data for account:', account.id, e);
@@ -311,8 +312,8 @@ export class SocialAccountService {
         let platformData = {};
         if (account.platform_data) {
           try {
-            platformData = typeof account.platform_data === 'string' 
-              ? JSON.parse(account.platform_data) 
+            platformData = typeof account.platform_data === 'string'
+              ? JSON.parse(account.platform_data)
               : account.platform_data;
           } catch (e) {
             logger.warn('Failed to parse platform_data for account:', account.id, e);
@@ -355,12 +356,12 @@ export class SocialAccountService {
   async getAccountStats(userId: string) {
     try {
       const { rows } = await database.query(
-        `SELECT 
-           platform_id,
-           COUNT(*) as total_accounts,
-           COUNT(CASE WHEN connection_status = 'connected' THEN 1 END) as connected_accounts,
-           COUNT(CASE WHEN connection_status = 'error' THEN 1 END) as error_accounts,
-           COUNT(CASE WHEN token_expires_at < CURRENT_TIMESTAMP THEN 1 END) as expired_accounts
+        `SELECT
+      platform_id,
+        COUNT(*) as total_accounts,
+        COUNT(CASE WHEN connection_status = 'connected' THEN 1 END) as connected_accounts,
+        COUNT(CASE WHEN connection_status = 'error' THEN 1 END) as error_accounts,
+        COUNT(CASE WHEN token_expires_at < CURRENT_TIMESTAMP THEN 1 END) as expired_accounts
          FROM social_accounts 
          WHERE user_id = $1 
          GROUP BY platform_id`,

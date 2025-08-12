@@ -1,11 +1,9 @@
-
-
-
 export interface Platform {
     id: number;
     name: string;
     max_content_length: number;
     supported_media_types: string[];
+    icon: React.ComponentType<{ className?: string }>
 }
 
 export interface ContentCategory {

@@ -1,12 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
-import { 
-  Post, 
-  PostFilters, 
-  GeneratePostRequest, 
-  UpdatePostRequest, 
-  PostResponse, 
-  PostsListResponse 
+import {
+  Post,
+  PostFilters,
+  UpdatePostRequest,
+  PostResponse,
+  PostsListResponse,
+  GeneratedResponse,
+  GeneratePayload
 } from '../types';
 
 // Create API service
@@ -42,9 +43,9 @@ export const postApi = createApi({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Post' as const, id })),
-              { type: 'Post', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Post' as const, id })),
+            { type: 'Post', id: 'LIST' },
+          ]
           : [{ type: 'Post', id: 'LIST' }],
     }),
 
@@ -54,13 +55,13 @@ export const postApi = createApi({
       providesTags: (result, error, id) => [{ type: 'Post', id }],
     }),
 
-    generatePost: builder.mutation<Post, GeneratePostRequest>({
+    generatePost: builder.mutation<Post[], GeneratePayload>({
       query: (postData) => ({
         url: '/posts/generate',
         method: 'POST',
         body: postData,
       }),
-      transformResponse: (response: PostResponse) => response.data,
+      transformResponse: (response: GeneratedResponse) => response.data.results,
       invalidatesTags: [{ type: 'Post', id: 'LIST' }],
     }),
 
@@ -109,6 +110,19 @@ export const postApi = createApi({
         { type: 'Post', id: 'LIST' },
       ],
     }),
+
+    schedulePost: builder.mutation<Post, { id: number; scheduled_for: string }>({
+      query: ({ id, scheduled_for }) => ({
+        url: `/posts/${id}/schedule`,
+        method: 'POST',
+        body: { scheduled_for },
+      }),
+      transformResponse: (response: PostResponse) => response.data,
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Post', id },
+        { type: 'Post', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -121,4 +135,5 @@ export const {
   useUpdatePostMutation,
   useDeletePostMutation,
   usePublishPostMutation,
+  useSchedulePostMutation,
 } = postApi;

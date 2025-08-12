@@ -1,24 +1,24 @@
+export interface PostSocialAccount {
+  account_name?: string | null;
+  account_username?: string | null;
+  profile_image_url?: string | null;
+}
+
 export interface Post {
   id: number;
-  user_id: number;
-  context_id?: number;
-  platform_id: number;
-  content: string;
-  content_type: 'text' | 'image' | 'video' | 'carousel' | 'story' | 'reel';
-  media_urls?: string[];
-  hashtags?: string[];
-  mentions?: string[];
+  context_name?: string | null;
+  template_name?: string | null;
+  platform_name: string;
+  campaign_name?: string | null;
+  social_account?: PostSocialAccount | null;
   status: 'draft' | 'scheduled' | 'published' | 'failed';
-  scheduled_for?: string;
-  published_at?: string;
-  created_at: string;
-  updated_at: string;
-
-  // Optional fields from joined tables
-  context_title?: string;
-  platform_name?: string;
-  user_email?: string;
+  scheduled_for?: string | null;
+  published_at?: string | null;
+  content: string;
+  created_at?: string | null;
 }
+
+
 
 export interface PostFilters {
   status?: string;
@@ -31,12 +31,17 @@ export interface PostFilters {
   sortOrder?: 'ASC' | 'DESC';
 }
 
-export interface GeneratePostRequest {
-  context_id: number;
-  platform_id: number;
-  scheduled_for?: string;
+export interface GeneratePayload {
+  context_id?: number;
   campaign_id?: number;
-}
+  prompt: string;
+  platforms: Array<{
+    platform_id: number;
+    template_id?: number | undefined;
+    scheduled_for?: string | null;
+    social_account_id: number;
+  }>;
+};
 
 export interface UpdatePostRequest {
   content?: string;
@@ -51,6 +56,16 @@ export interface PostResponse {
   success: boolean;
   message: string;
   data: Post;
+}
+
+
+export interface GeneratedResponse {
+  success: boolean;
+  message: string;
+  data: {
+    results: Post[];
+    error?: any;
+  };
 }
 
 export interface PostsListResponse {

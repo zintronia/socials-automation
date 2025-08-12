@@ -5,13 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Calendar, FileText } from 'lucide-react';
 import { useGetCampaignsQuery, useDeleteCampaignMutation } from '../services/campaignApi';
 import { toast } from 'sonner';
 import { Campaign } from '../types';
+import ComponentCard from '@/components/ComponentCard';
 
 interface CampaignsProps {
     onSelectCampaign?: (campaign: Campaign) => void;
@@ -107,21 +106,12 @@ const Campaigns: React.FC<CampaignsProps> = ({
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Campaigns</h2>
-                    <p className="text-muted-foreground">
-                        Manage your marketing campaigns and track their performance
-                    </p>
-                </div>
-                <Button onClick={handleCreateCampaign} className="w-full sm:w-auto">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Campaign
-                </Button>
-            </div>
-
+        <ComponentCard title='Campaigns' desc='Manage your campaigns effectively' actionButton={
+            <Button onClick={handleCreateCampaign} className="mb-4" >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Campaign
+            </Button>
+        }>
             {/* Search */}
             <div className="flex items-center space-x-2">
                 <div className="relative flex-1 max-w-sm">
@@ -243,7 +233,7 @@ const Campaigns: React.FC<CampaignsProps> = ({
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </ComponentCard>
     );
 };
 

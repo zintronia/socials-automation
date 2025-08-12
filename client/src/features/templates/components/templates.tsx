@@ -50,7 +50,7 @@ import {
 } from '../services/templateApi';
 
 // Mock data and constants
-const mockPlatforms = [
+const socialPlatforms = [
   { id: 1, name: 'Twitter', icon: '🐦' },
   { id: 2, name: 'Facebook', icon: '📘' },
   { id: 3, name: 'Instagram', icon: '📸' },
@@ -352,7 +352,7 @@ export default function Templates({
                                 <SelectValue placeholder="Select a platform" />
                               </SelectTrigger>
                               <SelectContent>
-                                {mockPlatforms.map((platform) => (
+                                {socialPlatforms.map((platform) => (
                                   <SelectItem key={platform.id} value={platform.id.toString()}>
                                     <div className="flex items-center gap-2">
                                       <span>{platform.icon}</span>
@@ -697,7 +697,7 @@ export default function Templates({
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:max-w-[200px]"
         >
           <option value={0}>All Platforms</option>
-          {mockPlatforms.map(platform => (
+          {socialPlatforms.map(platform => (
             <option key={platform.id} value={platform.id}>
               {platform.name}
             </option>
@@ -805,13 +805,12 @@ const TemplateCard = ({
   isSelected?: boolean;
   showActions?: boolean;
 }) => {
-  const platform = mockPlatforms.find(p => p.id === template.platform_id);
+  const platform = socialPlatforms.find(p => p.id === template.platform_id);
 
   return (
-    <Card 
-      className={`overflow-hidden cursor-pointer transition-all ${
-        isSelected ? 'ring-2 ring-primary border-primary' : 'hover:shadow-md'
-      }`}
+    <Card
+      className={`overflow-hidden cursor-pointer transition-all ${isSelected ? 'ring-2 ring-primary border-primary' : 'hover:shadow-md'
+        }`}
       onClick={onSelect}
     >
       <CardHeader className="p-4 pb-2">
@@ -865,16 +864,16 @@ const TemplateCard = ({
                   variant="outline"
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   onClick={(e) => { e.stopPropagation(); onDelete(); }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-          {!isSystem && showActions && (
-            <span className="text-xs text-muted-foreground">
-              {new Date(template.updated_at).toLocaleDateString()}
-            </span>
-          )}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            {!isSystem && showActions && (
+              <span className="text-xs text-muted-foreground">
+                {new Date(template.updated_at).toLocaleDateString()}
+              </span>
+            )}
           </div>
         )}
       </CardContent>

@@ -1,34 +1,28 @@
 'use client';
 
-import { AI_Prompt } from '@/components/animated-ai-input';
-import { CardsCarouselDemo } from '@/components/cards-carousel';
-import { useCreateContextMutation } from '@/features/context';
+import { AI_Prompt } from '@/components/ai-input/animated-ai-input';
+import { PostCards } from '@/components/post-cards/post-cards';
 import { useGeneratePostMutation } from '@/features/posts';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { Post } from '@/features/posts/types';
+import { GeneratePayload, Post } from '@/features/posts/types';
 import { useCreateCampaignMutation } from '@/features/campaign';
 
 const GeneratePage = () => {
     const [posts, setPost] = useState<Post[]>([])
-    const [createCampaign] = useCreateCampaignMutation();
     const [generatePost, { isLoading }] = useGeneratePostMutation();
+    const [createCampaign] = useCreateCampaignMutation();
 
-    const handleGenerate = async (data: {
-        content: string;
-        platform_id: number | null;
-        model: string;
-        type: string;
-        template_id?: number | null;
-        context_id?: number | null;
-    }) => {
-        if (!data.platform_id) {
+
+    const handleGenerate = async (data: GeneratePayload) => {
+        console.log('data', data);
+
+        if (!data.platforms || data.platforms.length === 0) {
             toast.error('Please select a platform');
             return;
         }
-
-        if (!data.context_id) {
-            toast.error('Please select a context');
+        if (!data.prompt.trim()) {
+            toast.error('Please enter a prompt');
             return;
         }
 
@@ -42,26 +36,36 @@ const GeneratePage = () => {
                 title: defaultTitle,
             }).unwrap();
 
-            // Then generate the post from the selected context
+            if (!campaign) {
+                toast.error('Failed to create campaign');
+                return;
+            }
+
             const post = await generatePost({
                 context_id: data.context_id,
-                platform_id: data.platform_id,
+                platforms: data.platforms,
                 campaign_id: campaign.id,
+                prompt: data.prompt,
             }).unwrap();
 
-            toast.success('Post generated successfully!');
-            setPost([...posts, post]);
+            if (post?.length === 0) {
+                toast.error('No posts generated. Please try again.');
+                return;
+            }
+            setPost([...posts, ...post]);
+
         } catch (error) {
             console.error('Error in post generation:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to generate post';
             toast.error(errorMessage);
-            throw error; // Re-throw to allow error handling in the AI_Prompt component
         }
     };
 
     return (
-        <div className='h-[calc(100vh-4rem)] w-full flex flex-col items-center justify-between'>
-            <CardsCarouselDemo posts={posts} />
+        <div className='w-full flex flex-col items-center justify-between'>
+            <div className="w-full h-[70vh] flex items-center justify-center overflow-y-scroll">
+                <PostCards posts={posts} />
+            </div>
             <AI_Prompt
                 handleGenerate={handleGenerate}
                 isSubmitting={isLoading}

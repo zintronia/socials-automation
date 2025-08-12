@@ -242,6 +242,7 @@ export interface CreatePostRequest {
     template_id?: number;
     platform_id: number;
     campaign_id?: number;
+    social_account_id?: number;
     content: string;
     content_type?: string;
     hashtags?: string[];
@@ -261,9 +262,12 @@ export interface UpdatePostRequest {
 }
 
 export interface GeneratePostRequest {
-    context_id: number;
+    context_id?: number;
+    template_id?: number;
     platform_id: number;
+    prompt?: string;
     campaign_id?: number;
+    social_account_id?: number;
     scheduled_for?: Date;
 }
 
@@ -292,7 +296,8 @@ export interface UpdatePostCollectionRequest {
 
 // AI Types
 export interface AIGenerationRequest {
-    context: Context;
+    context?: Context;
+    prompt?: string;
     template: ContextTemplate;
     platform: Platform;
 }

@@ -41,14 +41,26 @@ class CampaignService {
         // Get posts for this campaign
         const postsQuery = `
             SELECT 
-                p.*,
-                c.title as context_title,
-                pl.name as platform_name,
-                u.email as user_email
+                p.id,
+                c.title AS context_name,
+                t.name AS template_name,
+                pl.name AS platform_name,
+                pc.title AS campaign_name,
+                JSON_BUILD_OBJECT(
+                  'account_name', sa.account_name,
+                  'account_username', sa.account_username,
+                  'profile_image_url', sa.profile_image_url
+                ) AS social_account,
+                p.status,
+                p.scheduled_for,
+                p.published_at,
+                p.content
             FROM posts p
             LEFT JOIN contexts c ON p.context_id = c.id
+            LEFT JOIN context_templates t ON p.template_id = t.id
             LEFT JOIN platforms pl ON p.platform_id = pl.id
-            LEFT JOIN users u ON p.user_id = u.id
+            LEFT JOIN campaigns pc ON p.campaign_id = pc.id
+            LEFT JOIN social_accounts sa ON p.social_account_id = sa.id
             WHERE p.campaign_id = $1
             ORDER BY p.created_at DESC
         `;

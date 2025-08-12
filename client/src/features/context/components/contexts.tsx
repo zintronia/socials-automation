@@ -10,7 +10,7 @@ import { Plus, Search, Filter, Edit, Trash2, Check } from 'lucide-react';
 import { useGetContextsQuery, useCreateContextMutation, useUpdateContextMutation, useDeleteContextMutation } from '../services/contextApi';
 import { toast } from 'sonner';
 import { Context, CreateContextRequest } from '../types';
-import { mockPlatforms } from '@/lib/constant';
+import { socialPlatforms } from '@/lib/constant';
 
 interface ContextsProps {
   onSelectContext?: (context: Context) => void;
@@ -208,7 +208,7 @@ const Contexts: React.FC<ContextsProps> = ({
                       onChange={(e) => setNewContext({ ...newContext, platform_id: parseInt(e.target.value) || 0 })}
                     >
                       <option value="0">All Platforms</option>
-                      {mockPlatforms.map(platform => (
+                      {socialPlatforms.map(platform => (
                         <option key={platform.id} value={platform.id}>
                           {platform.name}
                         </option>
@@ -317,7 +317,7 @@ const Contexts: React.FC<ContextsProps> = ({
           onChange={(e) => setFilters({ ...filters, platform_id: parseInt(e.target.value) || 0 })}
         >
           <option value="0">All Platforms</option>
-          {mockPlatforms.map(platform => (
+          {socialPlatforms.map(platform => (
             <option key={platform.id} value={platform.id}>
               {platform.name}
             </option>
@@ -359,7 +359,7 @@ const Contexts: React.FC<ContextsProps> = ({
                 </Badge>
                 {context.platform_id && (
                   <Badge variant="outline">
-                    {mockPlatforms.find(p => p.id === context.platform_id)?.name || 'Unknown Platform'}
+                    {socialPlatforms.find(p => p.id === context.platform_id)?.name || 'Unknown Platform'}
                   </Badge>
                 )}
                 {context.tags?.map((tag) => (

@@ -1,6 +1,5 @@
 import { Pool, PoolConfig } from 'pg';
 import { config } from './environment';
-// logger will be implemented in utils/logger.utils
 import { logger } from '../utils/logger.utils';
 
 class Database {

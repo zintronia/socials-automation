@@ -1,3 +1,5 @@
+'use client'
+
 import { Campaigns } from '@/features/campaign/components'
 import React from 'react'
 
