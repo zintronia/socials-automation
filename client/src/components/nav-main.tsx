@@ -2,6 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 import {
   Collapsible,
@@ -25,7 +26,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon?: LucideIcon
+    icon?: string | LucideIcon | undefined,
     isActive?: boolean
     items?: {
       title: string
@@ -49,7 +50,21 @@ export function NavMain({
                 <>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
+                      {item.icon && (
+                        typeof item.icon === "string" ? (
+                          <Image
+                            aria-hidden
+                            src={item.icon}
+                            className="text-black"
+                            alt="Globe icon"
+                            width={25}
+                            height={25}
+                          />
+                        ) : (
+                          <item.icon />
+                        )
+                      )}
+
                       <span>{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
@@ -71,7 +86,20 @@ export function NavMain({
               ) : (
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link href={item.url}>
-                    {item.icon && <item.icon />}
+                    {item.icon && (
+                      typeof item.icon === "string" ? (
+                        <Image
+                          aria-hidden
+                          src={item.icon}
+                          className="w-4 h-4"
+                          alt="Menu icon"
+                          width={16}
+                          height={16}
+                        />
+                      ) : (
+                        <item.icon />
+                      )
+                    )}
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>

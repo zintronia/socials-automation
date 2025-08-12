@@ -16,7 +16,7 @@ const GeneratePage = () => {
     const [posts, setPost] = useState<Post[]>([])
     const [createContext] = useCreateContextMutation();
     const [generatePost, { isLoading }] = useGeneratePostMutation();
-    const { data: getCampaign } = useGetCampaignByIdQuery(campaignId);
+    const { data: getCampaign, isLoading: postLoading } = useGetCampaignByIdQuery(campaignId);
 
     useEffect(() => {
         if (getCampaign) {
@@ -70,7 +70,7 @@ const GeneratePage = () => {
     return (
         <div className='w-full flex flex-col items-center justify-between'>
             <div className="w-full h-[70vh] flex items-center justify-center overflow-y-scroll">
-                <PostCards posts={posts} />
+                <PostCards posts={posts} postLoading={postLoading} />
             </div>
             <AI_Prompt
                 handleGenerate={handleGenerate}

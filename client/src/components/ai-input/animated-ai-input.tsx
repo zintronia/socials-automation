@@ -17,6 +17,7 @@ import { useAutoResizeTextarea } from "./hooks/useAutoResizeTextarea";
 import type { AI_PromptProps, SelectedPlatform } from "./types";
 import { PlatformRow } from "./components/PlatformRow";
 import { toast } from "sonner";
+import { Loader } from "../ai-elements/loader";
 
 
 export function AI_Prompt({
@@ -127,8 +128,8 @@ export function AI_Prompt({
                         {/* External Toggle Button (visible when drawer is closed) */}
                         {!isDrawerOpen && (
 
-                            <div onClick={() => setIsDrawerOpen(true)} className="absolute bottom-full right-2 translate-y-0 z-[60] dark:bg-white/10 p-1 transition-colors py-1 px-5 bg-blue-500 rounded-t-lg">
-                                <ChevronDown className="w-4 h-4 transition-transform duration-200 rotate-180" />
+                            <div onClick={() => setIsDrawerOpen(true)} className="absolute bottom-full right-2 translate-y-0 z-[60] dark:bg-white/10 p-1 transition-colors py-1 px-5 bg-black rounded-t-lg">
+                                <ChevronDown className="w-4 h-4 transition-transform duration-200 rotate-180 text-white" />
                             </div>
                         )}
 
@@ -145,15 +146,15 @@ export function AI_Prompt({
                             {/* Drawer Toggle Button (moves with drawer, only when open) */}
                             <div className="flex justify-end">
                                 {isDrawerOpen && (
-                                    <div className="py-1 px-5  bg-blue-500 rounded-t-lg mr-5" onClick={() => setIsDrawerOpen(false)}>
-                                        <ChevronDown className="w-4 h-4 transition-transform duration-200" />
+                                    <div className="py-1 px-5  bg-black  rounded-t-lg mr-5" onClick={() => setIsDrawerOpen(false)}>
+                                        <ChevronDown className="w-4 h-4 transition-transform duration-200 text-white" />
                                     </div>
                                 )}</div>
                             <div className="rounded-t-2xl bg-white dark:bg-zinc-900">
 
                                 <div className="p-4">
                                     <h5 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-                                        Generated Post for
+                                        Generate Post for
                                     </h5>
                                     <>
                                         {socialPlatforms.map((platform) => {
@@ -411,14 +412,14 @@ export function AI_Prompt({
                                             }
                                         }}
                                     >
-                                        <ArrowRight
+                                        {isSubmitting ? <Loader /> : <ArrowRight
                                             className={cn(
                                                 "w-4 h-4 dark:text-white transition-opacity duration-200",
                                                 content.trim()
                                                     ? "opacity-100"
                                                     : "opacity-30"
                                             )}
-                                        />
+                                        />}
                                     </button>
                                 </div>
                             </div>

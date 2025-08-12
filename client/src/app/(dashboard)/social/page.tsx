@@ -1,7 +1,12 @@
 'use client';
 
-import { SocialAccounts } from '@/features/social';
+import { SocialAccounts } from '@/features/social'
+import React from 'react'
 
-export default function SocialPage() {
-    return <SocialAccounts />;
-} 
+const page = () => {
+    return (
+        <SocialAccounts />
+    )
+}
+
+export default page

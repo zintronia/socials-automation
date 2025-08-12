@@ -7,11 +7,17 @@ import { PostCardRenderer } from "./PostCardRenderer";
 import { buildISOFromDateTime } from "./utils";
 import type { ScheduleState, ScheduleEntry, PostControlsHandlers } from "./types";
 import { usePublishPostMutation, useSchedulePostMutation } from "@/features/posts/services/postApi";
+import { Loader } from "../ai-elements/loader";
 
-export function PostCards({ posts }: { posts: Post[] }) {
+export function PostCards({ posts, postLoading }: { posts: Post[], postLoading?: boolean }) {
     const [schedule, setSchedule] = useState<ScheduleState>({});
-    const [publishPost, { isLoading: isPublishing } ] = usePublishPostMutation();
+    const [publishPost, { isLoading: isPublishing }] = usePublishPostMutation();
     const [schedulePost, { isLoading: isScheduling }] = useSchedulePostMutation();
+
+
+    if (postLoading) {
+        return <Loader />;
+    }
 
     if (!posts || posts.length === 0) {
         return <div className="text-center text-gray-500">No posts available</div>;

@@ -1,2 +1,2 @@
-export { default as SocialAccounts } from './social-accounts';
-export * from './social-accounts'; 
+export { default as SocialAccounts } from './page';
+export * from './page'; 
