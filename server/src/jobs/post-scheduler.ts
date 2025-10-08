@@ -30,8 +30,8 @@ export async function initPostScheduler() {
         async (job: any) => {
           try {
             if (job.name === 'publish-post') {
-              const { postId, userId } = job.data as { postId: number; userId: number };
-              await postService.publishPost(postId, userId);
+              const { postId, userId, socialAccountId } = job.data as { postId: number; userId: string; socialAccountId?: number };
+              await postService.publishPost(postId, userId, socialAccountId);
               return;
             }
 
@@ -39,9 +39,10 @@ export async function initPostScheduler() {
             const due = await postService.getScheduledPosts();
             for (const p of due) {
               try {
-                await postService.publishPost(p.id, p.user_id);
+                // Note: p now contains post_account_id and social_account_id from the new schema
+                await postService.publishPost(p.id, p.user_id, p.social_account_id);
               } catch (e) {
-                logger.error('Worker failed to publish post', { postId: p.id, error: e });
+                logger.error('Worker failed to publish post', { postId: p.id, postAccountId: p.post_account_id, error: e });
               }
             }
           } catch (e) {
@@ -78,9 +79,10 @@ export async function initPostScheduler() {
             }
             for (const p of due) {
               try {
-                await postService.publishPost(p.id, p.user_id);
+                // Note: p now contains post_account_id and social_account_id from the new schema
+                await postService.publishPost(p.id, p.user_id, p.social_account_id);
               } catch (e) {
-                logger.error('Dev scheduler failed to publish post', { postId: p.id, error: e });
+                logger.error('Dev scheduler failed to publish post', { postId: p.id, postAccountId: p.post_account_id, error: e });
               }
             }
           } catch (e) {
@@ -99,7 +101,7 @@ export async function initPostScheduler() {
 }
 
 // Optional API to enqueue a single post publish in production (not required when using repeat scan)
-export async function enqueueScheduledPost(postId: number, userId: number, scheduledFor: Date) {
+export async function enqueueScheduledPost(postId: number, userId: string, scheduledFor: Date, socialAccountId?: number) {
   const env = config.environment;
   if (env !== 'production') return; // dev cron will pick it up
   try {
@@ -113,10 +115,10 @@ export async function enqueueScheduledPost(postId: number, userId: number, sched
     const queue = new Queue(QUEUE_NAME, { connection });
 
     const delayMs = Math.max(0, scheduledFor.getTime() - Date.now());
-    const jobId = `post-${postId}`; // idempotent
-    await queue.add('publish-post', { postId, userId }, { delay: delayMs, jobId });
-    logger.info('Enqueued scheduled post', { postId, delayMs });
+    const jobId = socialAccountId ? `post-${postId}-account-${socialAccountId}` : `post-${postId}`; // idempotent per account
+    await queue.add('publish-post', { postId, userId, socialAccountId }, { delay: delayMs, jobId });
+    logger.info('Enqueued scheduled post', { postId, socialAccountId, delayMs });
   } catch (error) {
-    logger.error('Failed to enqueue scheduled post', { postId, error });
+    logger.error('Failed to enqueue scheduled post', { postId, socialAccountId, error });
   }
 }

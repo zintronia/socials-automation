@@ -105,14 +105,14 @@ export class SocialAccountService {
     }
   }
 
-  async getSocialAccountsByUser(userId: number, platformId?: number) {
+  async getSocialAccountsByUser(userId: string, platformId?: string | number) {
     try {
       let query = 'SELECT * FROM social_accounts WHERE user_id = $1';
-      const params = [userId];
+      const params: (string | number)[] = [userId];
 
       if (platformId) {
-        query += ' AND platform_id = $2';
-        params.push(platformId);
+        query += ' AND platform_id = $' + (params.length + 1);
+        params.push(Number(platformId));
       }
 
       query += ' ORDER BY created_at DESC';
@@ -217,7 +217,7 @@ export class SocialAccountService {
     }
   }
 
-  async getActiveSocialAccounts(userId: number, platformId?: number) {
+  async getActiveSocialAccounts(userId: string, platformId?: number) {
     try {
       let query = `
         SELECT sa.*, p.name as platform_name, p.type as platform_type 
@@ -227,7 +227,7 @@ export class SocialAccountService {
           AND sa.is_active = true 
           AND sa.connection_status = 'connected'
         `;
-      const params = [userId];
+      const params: (string | number)[] = [userId];
 
       if (platformId) {
         query += ' AND sa.platform_id = $2';

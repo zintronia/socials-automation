@@ -10,7 +10,7 @@ import {
     useRefreshTwitterTokenMutation,
     useDisconnectTwitterAccountMutation,
     useGetTwitterStatsQuery
-} from '../services/socialApi';
+} from '../services/api';
 import { SocialAccount, ConnectAccountRequest, SocialFilters } from '../types';
 
 export const useSocial = () => {

@@ -187,7 +187,7 @@ export const config: Config = {
         maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100')
     },
     cors: {
-        allowedOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3001']
+        allowedOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001']
     },
     logging: {
         level: process.env.LOG_LEVEL || 'info',

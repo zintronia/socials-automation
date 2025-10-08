@@ -28,36 +28,18 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     };
 }
 
-// User Types
-export interface User {
-    id: number;
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: string;
-    is_active: boolean;
-    last_login: Date | null;
-    created_at: Date;
-    updated_at: Date;
-}
-
-export interface CreateUserRequest {
-    email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
-}
-
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
-
-export interface AuthResponse {
-    user: Omit<User, 'password_hash'>;
-    token: string;
-    refreshToken: string;
-    expiresIn: string;
+// Authentication Types
+export interface AuthenticatedRequest extends Request {
+    user: {
+        id: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        profile_image_url?: string;
+        created_at: Date;
+        updated_at: Date;
+    };
+    userId: string;
 }
 
 // Platform Types
@@ -148,7 +130,7 @@ export interface UpdateTemplateRequest extends Partial<CreateTemplateRequest> { 
 // Context Types
 export interface Context {
     id: number;
-    user_id: number;
+    userId: string;
     template_id?: number;
     platform_id: number;
     category_id?: number;
@@ -207,58 +189,77 @@ export interface UpdateContextRequest extends Partial<CreateContextRequest> { }
 // Post Types
 export interface Post {
     id: number;
-    user_id: number;
+    user_id: string;
     context_id?: number;
     template_id?: number;
     platform_id: number;
-    collection_id?: number;
+    campaign_id?: number;
     content: string;
     content_type: string;
-    hashtags: string[];
-    mentions: string[];
-    status: 'draft' | 'scheduled' | 'published' | 'failed';
+    prompt?: string;
+    metadata: Record<string, any>;
+    status: 'draft' | 'ready' | 'published' | 'partially_published' | 'failed' | 'archived';
+    created_at: Date;
+    updated_at: Date;
+    // Joined fields
+    context_name?: string;
+    template_name?: string;
+    platform_name?: string;
+    campaign_name?: string;
+    user_email?: string;
+    social_accounts?: SocialAccountInfo[];
+}
+
+// Post Account Types (new table)
+export interface PostAccount {
+    id: number;
+    post_id: number;
+    social_account_id: number;
+    status: 'scheduled' | 'publishing' | 'published' | 'failed';
     scheduled_for?: Date;
     published_at?: Date;
     platform_post_id?: string;
     platform_url?: string;
     platform_response: Record<string, any>;
-    engagement_metrics: Record<string, any>;
-    last_metrics_update?: Date;
     error_message?: string;
     retry_count: number;
-    metadata: Record<string, any>;
+    engagement_metrics: Record<string, any>;
+    last_metrics_update?: Date;
     created_at: Date;
     updated_at: Date;
     // Joined fields
-    context_title?: string;
+    account_name?: string;
+    account_username?: string;
+    profile_image_url?: string;
     platform_name?: string;
-    user_email?: string;
-    campaign_title?: string;
+}
+
+// Social Account Info (for joined queries)
+export interface SocialAccountInfo {
+    id?: number;
+    account_name: string;
+    account_username?: string;
+    profile_image_url?: string;
+    platform_name?: string;
 }
 
 export interface CreatePostRequest {
-    user_id: number;
+    user_id: string;
     context_id?: number;
     template_id?: number;
     platform_id: number;
     campaign_id?: number;
-    social_account_id?: number;
+    prompt?: string;
     content: string;
     content_type?: string;
-    hashtags?: string[];
-    mentions?: string[];
     status?: Post['status'];
-    scheduled_for?: Date;
     metadata?: Record<string, any>;
 }
 
 export interface UpdatePostRequest {
     content?: string;
-    hashtags?: string[];
-    mentions?: string[];
-    collection_id?: number;
-    scheduled_for?: Date;
     metadata?: Record<string, any>;
+    status?: Post['status'];
 }
 
 export interface GeneratePostRequest {
@@ -267,14 +268,28 @@ export interface GeneratePostRequest {
     platform_id: number;
     prompt?: string;
     campaign_id?: number;
-    social_account_id?: number;
+    social_account_ids?: number[];
     scheduled_for?: Date;
+}
+
+// Post Account Management Types
+export interface LinkPostAccountsRequest {
+    social_account_ids: number[];
+}
+
+export interface SchedulePostRequest {
+    scheduled_for: Date;
+    social_account_ids?: number[];
+}
+
+export interface PublishPostRequest {
+    social_account_id?: number; // Optional: publish to specific account only
 }
 
 // Post Collection Types
 export interface PostCollection {
     id: number;
-    user_id: number;
+    userId: string;
     title: string;
     description?: string;
     created_at: Date;
@@ -296,7 +311,7 @@ export interface UpdatePostCollectionRequest {
 
 // AI Types
 export interface AIGenerationRequest {
-    context?: Context;
+    context?: Context | undefined;
     prompt?: string;
     template: ContextTemplate;
     platform: Platform;
@@ -338,21 +353,11 @@ export interface ApiError extends Error {
     details?: any;
 }
 
-export interface AuthenticatedRequest extends Request {
-    user: {
-        id: number;
-        email: string;
-        first_name: string;
-        last_name: string;
-        role: string;
-        is_active: boolean;
-    };
-}
 
 // Campaign Types
 export interface Campaign {
     id: number;
-    user_id: number;
+    userId: string;
     title: string;
     description?: string;
     created_at: Date;

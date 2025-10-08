@@ -1,6 +1,6 @@
 // Redux exports
 export * from './socialSlice';
-export * from './services/socialApi';
+export * from './services/api';
 export * from './types';
 
 // Component exports

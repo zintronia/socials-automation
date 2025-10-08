@@ -78,7 +78,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/', platformController.getAll);
+router.get('/', (req, res) => platformController.getAll(req as any, res));
 
 /**
  * @swagger
@@ -141,6 +141,6 @@ router.get('/', platformController.getAll);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', platformController.getById);
+router.get('/:id', (req, res) => platformController.getById(req as any, res));
 
 export { router as platformRoutes }; 

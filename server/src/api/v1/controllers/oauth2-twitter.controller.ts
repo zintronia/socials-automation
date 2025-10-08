@@ -3,14 +3,16 @@ import { oauth2TwitterService } from '../../../integrations/social/X(twitter)/oa
 import { socialAccountService } from '../../../services/social-account.service';
 import { respondWithSuccess, respondWithError } from '../../../utils/response.utils';
 import { logger } from '../../../utils/logger.utils';
+import { AuthenticatedRequest } from '../../../types';
+import { getAuth } from '@clerk/express'
 
 export class OAuth2TwitterController {
     /**
      * Initiate OAuth 2.0 flow with PKCE
      */
-    async initiateAuth(req: Request, res: Response) {
+    async initiateAuth(req: AuthenticatedRequest, res: Response) {
         try {
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
             const { callbackUrl, scopes } = req.body;
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -50,10 +52,10 @@ export class OAuth2TwitterController {
     /**
      * Handle OAuth 2.0 callback
      */
-    async handleCallback(req: Request, res: Response) {
+    async handleCallback(req: AuthenticatedRequest, res: Response) {
         try {
             const { code, state } = req.body;
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -98,9 +100,9 @@ export class OAuth2TwitterController {
     /**
      * Get connected Twitter accounts for user
      */
-    async getConnectedAccounts(req: Request, res: Response) {
+    async getConnectedAccounts(req: AuthenticatedRequest, res: Response) {
         try {
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
             const platformId = 1; // Twitter platform ID
 
             if (!userId) {
@@ -136,10 +138,10 @@ export class OAuth2TwitterController {
     /**
      * Refresh access token for a specific account
      */
-    async refreshToken(req: Request, res: Response) {
+    async refreshToken(req: AuthenticatedRequest, res: Response) {
         try {
             const { accountId } = req.params;
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -170,10 +172,10 @@ export class OAuth2TwitterController {
     /**
      * Disconnect a Twitter account
      */
-    async disconnectAccount(req: Request, res: Response) {
+    async disconnectAccount(req: AuthenticatedRequest, res: Response) {
         try {
             const { accountId } = req.params;
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -200,9 +202,9 @@ export class OAuth2TwitterController {
     /**
      * Get account statistics
      */
-    async getAccountStats(req: Request, res: Response) {
+    async getAccountStats(req: AuthenticatedRequest, res: Response) {
         try {
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -228,10 +230,10 @@ export class OAuth2TwitterController {
     /**
      * Validate OAuth state (for debugging/testing)
      */
-    async validateState(req: Request, res: Response) {
+    async validateState(req: AuthenticatedRequest, res: Response) {
         try {
             const { state } = req.params;
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);
@@ -268,10 +270,10 @@ export class OAuth2TwitterController {
     /**
      * Get access token for a specific account (with automatic refresh)
      */
-    async getAccessToken(req: Request, res: Response) {
+    async getAccessToken(req: AuthenticatedRequest, res: Response) {
         try {
             const { accountId } = req.params;
-            const userId = (req as any).user?.id;
+            const userId = req.user.id;
 
             if (!userId) {
                 respondWithError(res, 'User not authenticated', 401);

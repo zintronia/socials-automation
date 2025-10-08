@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/store/store';
 import {
     Template,
     CreateTemplateRequest,
@@ -8,34 +7,14 @@ import {
     TemplatesListResponse,
     TemplateFilters,
 } from '../types';
+import { baseQuery } from '@/lib/api/baseApi';
 
-// Helper function to handle API errors
-const handleResponse = (response: any) => {
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  return response.json();
-};
 
-// Create API service
 export const templateApi = createApi({
     reducerPath: 'templateApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-        prepareHeaders: (headers, { getState }) => {
-            // Get token from auth state
-            const token = (getState() as RootState).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            headers.set('Content-Type', 'application/json');
-            return headers;
-        },
-    }),
+    baseQuery: baseQuery,
     tagTypes: ['Template'],
-    // Auto-refresh data when window regains focus
     refetchOnFocus: true,
-    // Auto-refresh data when network reconnects
     refetchOnReconnect: true,
     endpoints: (builder) => ({
         getTemplates: builder.query<Template[], TemplateFilters | void>({

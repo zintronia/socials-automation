@@ -6,7 +6,7 @@ import {
   useCreateCampaignMutation,
   useUpdateCampaignMutation,
   useDeleteCampaignMutation,
-} from '../services/campaignApi';
+} from '../services/api';
 import { CampaignFilters, CreateCampaignRequest, UpdateCampaignRequest } from '../types';
 
 export const useCampaigns = () => {
@@ -31,7 +31,7 @@ export const useCampaigns = () => {
   // Filter campaigns based on search
   const filteredCampaigns = useMemo(() => {
     if (!filters.search) return campaigns;
-    
+
     const searchTerm = filters.search.toLowerCase();
     return campaigns.filter(
       (campaign) =>
@@ -47,9 +47,9 @@ export const useCampaigns = () => {
       return { success: true };
     } catch (error) {
       console.error('Error creating campaign:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create campaign' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create campaign'
       };
     }
   }, [createCampaign]);
@@ -61,9 +61,9 @@ export const useCampaigns = () => {
       return { success: true };
     } catch (error) {
       console.error('Error updating campaign:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to update campaign' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update campaign'
       };
     }
   }, [updateCampaign]);
@@ -75,13 +75,13 @@ export const useCampaigns = () => {
       return { success: true };
     } catch (error) {
       console.error('Error deleting campaign:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to delete campaign' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete campaign'
       };
     }
   }, [deleteCampaign]);
-  
+
   return {
     // State
     campaigns: filteredCampaigns,
@@ -89,7 +89,7 @@ export const useCampaigns = () => {
     isLoading: isLoading || stateLoading,
     error,
     filters,
-    
+
     // Actions
     setFilters,
     createCampaign: createNewCampaign,

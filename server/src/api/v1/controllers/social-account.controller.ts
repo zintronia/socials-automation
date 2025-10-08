@@ -2,11 +2,12 @@ import { Request, Response } from 'express';
 import { socialAccountService } from '../../../services/social-account.service';
 import { respondWithSuccess, respondWithError } from '../../../utils/response.utils';
 import { logger } from '../../../utils/logger.utils';
+import { AuthenticatedRequest } from '../../../types';
 
 export class SocialAccountController {
-  async connectAccount(req: Request, res: Response) {
+  async connectAccount(req: AuthenticatedRequest, res: Response) {
     try {
-      const userId = (req as any).user?.id; // Assuming user is authenticated and user ID is in the request
+      const userId = req.user.id
       const { platformId, accountId, accountName, accessToken, refreshToken, platform_data } = req.body;
 
       if (!userId || !platformId || !accountId || !accountName || !accessToken) {
@@ -60,9 +61,11 @@ export class SocialAccountController {
     }
   }
 
-  async getAccounts(req: Request, res: Response) {
+  async getAccounts(req: AuthenticatedRequest, res: Response) {
     try {
-      const userId = (req as any).user?.id;
+
+      const userId = req.user.id
+
       const { platformId } = req.query;
 
       if (!userId) {
@@ -100,10 +103,10 @@ export class SocialAccountController {
     }
   }
 
-  async disconnectAccount(req: Request, res: Response) {
+  async disconnectAccount(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const userId = (req as any).user?.id;
+      const userId = req.user.id
 
       if (!userId) {
         respondWithError(res, 'Unauthorized', 401);

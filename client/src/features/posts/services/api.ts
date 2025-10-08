@@ -9,20 +9,13 @@ import {
   GeneratedResponse,
   GeneratePayload
 } from '../types';
+import { useAuth } from '@clerk/nextjs'
+import { baseQuery } from '@/lib/api/baseApi';
 
 // Create API service
 export const postApi = createApi({
   reducerPath: 'postApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery,
   tagTypes: ['Post'],
   endpoints: (builder) => ({
     getPosts: builder.query<Post[], Partial<PostFilters> | void>({

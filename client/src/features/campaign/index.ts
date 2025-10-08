@@ -2,7 +2,7 @@
 export * from './types';
 
 // Export API service
-export * from './services/campaignApi';
+export * from './services/api';
 
 // Export Redux slice
 export { default as campaignReducer } from './campaignSlice';

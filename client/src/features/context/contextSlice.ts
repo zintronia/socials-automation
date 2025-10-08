@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { contextApi } from './services/contextApi';
+import { contextApi } from './services/api';
 import { Context, ContextState } from './types';
 
 const initialState: ContextState = {

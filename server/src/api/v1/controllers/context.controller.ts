@@ -58,6 +58,8 @@ export class ContextController {
     async getAll(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const userId = req.user.id;
+            console.log(userId, 'userId----------------------', req.user);
+
             const filters = {
                 type: req.query.type as string | undefined,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined

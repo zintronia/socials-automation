@@ -1,18 +1,14 @@
--- Users table (unchanged)
+-- Users table (changed)
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
+  id VARCHAR(255) PRIMARY KEY,  -- Using clerk_id as the primary key
   email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
-  role VARCHAR(50) NOT NULL DEFAULT 'user',
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  last_login TIMESTAMP,
+  profile_image_url VARCHAR(255),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Platforms table (unchanged)
 CREATE TABLE IF NOT EXISTS platforms (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL UNIQUE,
@@ -27,7 +23,6 @@ CREATE TABLE IF NOT EXISTS platforms (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Content categories (unchanged)
 CREATE TABLE IF NOT EXISTS content_categories (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -36,11 +31,10 @@ CREATE TABLE IF NOT EXISTS content_categories (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Context templates - key changes for requirements
 CREATE TABLE IF NOT EXISTS context_templates (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id), -- NULL for system templates
-  platform_id INTEGER REFERENCES platforms(id), -- NULL for generic templates
+  user_id VARCHAR(255) REFERENCES users(id), 
+  platform_id INTEGER REFERENCES platforms(id), 
   category_id INTEGER REFERENCES content_categories(id),
   name VARCHAR(100) NOT NULL,
   description TEXT,
@@ -58,23 +52,21 @@ CREATE TABLE IF NOT EXISTS context_templates (
   call_to_action_templates TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
   is_default BOOLEAN NOT NULL DEFAULT FALSE,
   is_public BOOLEAN NOT NULL DEFAULT FALSE,
-  is_system_template BOOLEAN NOT NULL DEFAULT FALSE, -- NEW: Identifies system templates
+  is_system_template BOOLEAN NOT NULL DEFAULT FALSE, 
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   usage_count INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   
-  -- Constraints to ensure proper template ownership
   CONSTRAINT check_template_ownership CHECK (
     (is_system_template = TRUE AND user_id IS NULL) OR 
     (is_system_template = FALSE AND user_id IS NOT NULL)
   )
 );
 
--- Contexts - removed direct platform_id and template_id references
 CREATE TABLE IF NOT EXISTS contexts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
+  user_id VARCHAR(255) REFERENCES users(id),
   type VARCHAR(20) NOT NULL,
   title VARCHAR(200) NOT NULL,
   topic VARCHAR(200),
@@ -87,22 +79,20 @@ CREATE TABLE IF NOT EXISTS contexts (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Campaign table - added for campaign management
 CREATE TABLE IF NOT EXISTS campaigns (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
   title VARCHAR(200) NOT NULL,
   description TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- OAuth state management table for PKCE and CSRF protection
 CREATE TABLE IF NOT EXISTS oauth_states (
   id SERIAL PRIMARY KEY,
   state VARCHAR(255) NOT NULL UNIQUE,
   code_verifier VARCHAR(255) NOT NULL,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
   platform_id INTEGER REFERENCES platforms(id) ON DELETE CASCADE,
   callback_url TEXT NOT NULL,
   scope TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
@@ -113,10 +103,9 @@ CREATE TABLE IF NOT EXISTS oauth_states (
   CONSTRAINT idx_oauth_states_expires_at CHECK (expires_at > created_at)
 );
 
--- Social Accounts - for connecting and managing social media accounts
 CREATE TABLE IF NOT EXISTS social_accounts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
   platform_id INTEGER REFERENCES platforms(id) ON DELETE CASCADE,
   account_name VARCHAR(255) NOT NULL, -- Display name or username
   account_id VARCHAR(255) NOT NULL, -- Platform-specific account ID
@@ -126,7 +115,6 @@ CREATE TABLE IF NOT EXISTS social_accounts (
   follower_count INTEGER DEFAULT 0,
   following_count INTEGER DEFAULT 0,
   
-  -- OAuth and Authentication (Enhanced for OAuth 2.0)
   access_token TEXT, -- Legacy field for backward compatibility
   refresh_token TEXT, -- Legacy field for backward compatibility
   oauth_version VARCHAR(10) NOT NULL DEFAULT '1.0a',
@@ -166,36 +154,92 @@ CREATE TABLE IF NOT EXISTS social_accounts (
   CONSTRAINT check_oauth_version CHECK (oauth_version IN ('1.0a', '2.0'))
 );
 
--- Posts 
+-- old Posts table 
+-- CREATE TABLE IF NOT EXISTS posts (
+--   id SERIAL PRIMARY KEY,
+--   user_id VARCHAR(255) REFERENCES users(id),
+--   context_id INTEGER REFERENCES contexts(id), 
+--   template_id INTEGER REFERENCES context_templates(id), -- NULL = no template used
+--   platform_id INTEGER REFERENCES platforms(id), -- Target platform
+--   campaign_id INTEGER REFERENCES campaigns(id) ON DELETE CASCADE,
+--   social_account_id INTEGER REFERENCES social_accounts(id), -- Social account to post ,
+--   content TEXT NOT NULL,
+--   prompt TEXT NOT NULL,
+--   content_type VARCHAR(50) NOT NULL DEFAULT 'text',
+--   hashtags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+--   mentions TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+--   status VARCHAR(20) NOT NULL DEFAULT 'draft',
+--   scheduled_for TIMESTAMP,
+--   published_at TIMESTAMP,
+--   platform_post_id VARCHAR(255),
+--   platform_url VARCHAR(255),
+--   platform_response JSONB NOT NULL DEFAULT '{}',
+--   engagement_metrics JSONB NOT NULL DEFAULT '{}',
+--   last_metrics_update TIMESTAMP,
+--   error_message TEXT,
+--   retry_count INTEGER NOT NULL DEFAULT 0,
+--   metadata JSONB NOT NULL DEFAULT '{}',
+--   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+-- );
+
+
 CREATE TABLE IF NOT EXISTS posts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
-  context_id INTEGER REFERENCES contexts(id), 
+  user_id VARCHAR(255) REFERENCES users(id),
+  context_id INTEGER REFERENCES contexts(id),
   template_id INTEGER REFERENCES context_templates(id), -- NULL = no template used
-  platform_id INTEGER REFERENCES platforms(id), -- Target platform
   campaign_id INTEGER REFERENCES campaigns(id) ON DELETE CASCADE,
-  social_account_id INTEGER REFERENCES social_accounts(id), -- Social account to post ,
-  content TEXT NOT NULL,
-  prompt TEXT NOT NULL,
-  content_type VARCHAR(50) NOT NULL DEFAULT 'text',
-  hashtags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-  mentions TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-  status VARCHAR(20) NOT NULL DEFAULT 'draft',
-  scheduled_for TIMESTAMP,
-  published_at TIMESTAMP,
-  platform_post_id VARCHAR(255),
-  platform_url VARCHAR(255),
-  platform_response JSONB NOT NULL DEFAULT '{}',
-  engagement_metrics JSONB NOT NULL DEFAULT '{}',
-  last_metrics_update TIMESTAMP,
-  error_message TEXT,
-  retry_count INTEGER NOT NULL DEFAULT 0,
-  metadata JSONB NOT NULL DEFAULT '{}',
+  platform_id INTEGER REFERENCES platforms(id), -- Target platform
+  
+  -- Core content
+  content TEXT NOT NULL,        -- final text (AI output or user edited)
+  prompt TEXT,                  -- optional: raw prompt used
+  content_type VARCHAR(50) NOT NULL DEFAULT 'text', -- text, image, carousel, etc.
+  
+  -- Metadata
+  metadata JSONB NOT NULL DEFAULT '{}', -- flexible extras
+  
+  -- Lifecycle
+  status VARCHAR(20) NOT NULL DEFAULT 'draft', -- draft, ready, archived
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Media (unchanged)
+
+-- new table 
+CREATE TABLE IF NOT EXISTS post_accounts (
+  id SERIAL PRIMARY KEY,
+  post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+  social_account_id INTEGER REFERENCES social_accounts(id) ON DELETE CASCADE,
+  
+  -- Publishing state (per account)
+  status VARCHAR(20) NOT NULL DEFAULT 'scheduled', -- scheduled, publishing, published, failed
+  scheduled_for TIMESTAMP,
+  published_at TIMESTAMP,
+  
+  -- Platform response
+  platform_post_id VARCHAR(255),
+  platform_url VARCHAR(255),
+  platform_response JSONB NOT NULL DEFAULT '{}',
+  
+  -- Error handling
+  error_message TEXT,
+  retry_count INTEGER NOT NULL DEFAULT 0,
+  
+  -- Metrics
+  engagement_metrics JSONB NOT NULL DEFAULT '{}',
+  last_metrics_update TIMESTAMP,
+  
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  UNIQUE (post_id, social_account_id) -- prevent duplicate mapping
+);
+
+
+
+
 CREATE TABLE IF NOT EXISTS media (
   id SERIAL PRIMARY KEY,
   mediaable_type VARCHAR(50) NOT NULL,
@@ -214,12 +258,10 @@ CREATE TABLE IF NOT EXISTS media (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for OAuth states performance
 CREATE INDEX IF NOT EXISTS idx_oauth_states_state ON oauth_states(state);
 CREATE INDEX IF NOT EXISTS idx_oauth_states_user_id ON oauth_states(user_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_states_expires_at ON oauth_states(expires_at);
 
--- Create indexes for social accounts performance
 CREATE INDEX IF NOT EXISTS idx_social_accounts_user_platform ON social_accounts(user_id, platform_id);
 CREATE INDEX IF NOT EXISTS idx_social_accounts_connection_status ON social_accounts(connection_status);
 CREATE INDEX IF NOT EXISTS idx_social_accounts_token_expires ON social_accounts(token_expires_at);

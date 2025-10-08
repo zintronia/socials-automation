@@ -3,10 +3,11 @@ import { oauth2LinkedInService } from '../../../integrations/social/Likedin/oaut
 import { socialAccountService } from '../../../services/social-account.service';
 import { respondWithSuccess, respondWithError } from '../../../utils/response.utils';
 import { logger } from '../../../utils/logger.utils';
+import { AuthenticatedRequest } from '../../../types';
 
 export class OAuth2LinkedInController {
   /** Initiate OAuth 2.0 flow with PKCE */
-  async initiateAuth(req: Request, res: Response) {
+  async initiateAuth(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = (req as any).user?.id;
       const { callbackUrl, scopes } = req.body;
@@ -36,7 +37,7 @@ export class OAuth2LinkedInController {
   }
 
   /** Handle OAuth 2.0 callback */
-  async handleCallback(req: Request, res: Response) {
+  async handleCallback(req: AuthenticatedRequest, res: Response) {
     try {
       const { code, state } = req.body;
       const userId = (req as any).user?.id;
@@ -70,7 +71,7 @@ export class OAuth2LinkedInController {
   }
 
   /** Get connected LinkedIn accounts for user */
-  async getConnectedAccounts(req: Request, res: Response) {
+  async getConnectedAccounts(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = (req as any).user?.id;
       const platformId = 2;
@@ -101,7 +102,7 @@ export class OAuth2LinkedInController {
   }
 
   /** Refresh access token for a specific account */
-  async refreshToken(req: Request, res: Response) {
+  async refreshToken(req: AuthenticatedRequest, res: Response) {
     try {
       const { accountId } = req.params;
       const userId = (req as any).user?.id;
@@ -125,7 +126,7 @@ export class OAuth2LinkedInController {
   }
 
   /** Disconnect a LinkedIn account */
-  async disconnectAccount(req: Request, res: Response) {
+  async disconnectAccount(req: AuthenticatedRequest, res: Response) {
     try {
       const { accountId } = req.params;
       const userId = (req as any).user?.id;
@@ -145,7 +146,7 @@ export class OAuth2LinkedInController {
   }
 
   /** Get account statistics for LinkedIn */
-  async getAccountStats(req: Request, res: Response) {
+  async getAccountStats(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = (req as any).user?.id;
       if (!userId) return respondWithError(res, 'User not authenticated', 401);

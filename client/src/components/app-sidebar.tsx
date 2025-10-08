@@ -24,7 +24,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { NavCampaigns } from "./nav-campaigns"
-import { useAuth } from "@/features/auth/lib/useAuth"
+import { useUser } from "@clerk/nextjs"
+import { User } from "@/types/user.type"
+import { Loader } from "./ui/loader"
 
 interface NavItem {
   title: string
@@ -91,9 +93,7 @@ const navItems: NavItem[] = [
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, loading } = useAuth()
-
-
+  const { user, isLoaded } = useUser()
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -105,7 +105,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavCampaigns />
       </SidebarContent>
       <SidebarFooter>
-        {user && <NavUser user={user} />}
+        {
+          !isLoaded || !user ? (
+            <Loader />
+          ) : (
+            <NavUser
+              user={{
+                ...user,
+                primaryEmailAddress: {
+                  emailAddress: user.primaryEmailAddress?.emailAddress || ""
+                }
+              } as User}
+            />
+          )
+        }
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

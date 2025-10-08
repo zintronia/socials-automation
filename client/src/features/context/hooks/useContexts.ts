@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useGetContextsQuery, useCreateContextMutation, useUpdateContextMutation, useDeleteContextMutation } from '../services/contextApi';
+import { useGetContextsQuery, useCreateContextMutation, useUpdateContextMutation, useDeleteContextMutation } from '../services/api';
 import { Context, CreateContextRequest } from '../types';
 
 export const useContexts = () => {
@@ -8,19 +8,19 @@ export const useContexts = () => {
     type: '',
     platform_id: 0
   });
-  
+
   // RTK Query hooks
-  const { 
-    data: contexts = [], 
-    isLoading, 
+  const {
+    data: contexts = [],
+    isLoading,
     error,
-    refetch 
+    refetch
   } = useGetContextsQuery({});
-  
+
   const [createContext] = useCreateContextMutation();
   const [updateContext] = useUpdateContextMutation();
   const [deleteContext] = useDeleteContextMutation();
-  
+
   // Filter contexts based on current filters
   const filteredContexts = contexts.filter(context => {
     if (filters.search && !context.title.toLowerCase().includes(filters.search.toLowerCase())) {
@@ -34,7 +34,7 @@ export const useContexts = () => {
     }
     return true;
   });
-  
+
   // Create a new context
   const createNewContext = useCallback(async (contextData: CreateContextRequest) => {
     try {
@@ -42,13 +42,13 @@ export const useContexts = () => {
       return { success: true, data: result };
     } catch (error) {
       console.error('Error creating context:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create context' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create context'
       };
     }
   }, [createContext]);
-  
+
   // Update an existing context
   const updateExistingContext = useCallback(async (id: number, updates: Partial<Context>) => {
     try {
@@ -56,13 +56,13 @@ export const useContexts = () => {
       return { success: true, data: result };
     } catch (error) {
       console.error('Error updating context:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to update context' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update context'
       };
     }
   }, [updateContext]);
-  
+
   // Delete a context
   const deleteExistingContext = useCallback(async (id: number) => {
     try {
@@ -70,20 +70,20 @@ export const useContexts = () => {
       return { success: true };
     } catch (error) {
       console.error('Error deleting context:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to delete context' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete context'
       };
     }
   }, [deleteContext]);
-  
+
   return {
     // State
     contexts: filteredContexts,
     isLoading,
     error,
     filters,
-    
+
     // Actions
     setFilters,
     createContext: createNewContext,

@@ -47,7 +47,7 @@ import {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
   useDeleteTemplateMutation
-} from '../services/templateApi';
+} from '../services/api';
 
 // Mock data and constants
 const socialPlatforms = [

@@ -1,6 +1,6 @@
 // Redux exports
 export * from './contextSlice';
-export * from './services/contextApi';
+export * from './services/api';
 export * from './types';
 
 // Component exports

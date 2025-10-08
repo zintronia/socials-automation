@@ -14,21 +14,11 @@ import {
     SocialAccountStats,
     SocialFilters,
 } from '../types';
+import { baseQuery } from '@/lib/api/baseApi';
 
-// Create API service
 export const socialApi = createApi({
     reducerPath: 'socialApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-        prepareHeaders: (headers, { getState }) => {
-            // Get token from auth state
-            const token = (getState() as RootState).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['SocialAccount', 'Platform'],
     endpoints: (builder) => ({
         // Get all social accounts

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { templateApi } from './services/templateApi';
+import { templateApi } from './services/api';
 import { Template, TemplateState } from './types';
 
 const initialState: TemplateState = {

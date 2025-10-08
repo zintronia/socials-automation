@@ -1,12 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { contextController } from '../controllers/context.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
 import { createContextSchema } from '../validation/validation';
+import { requireAuth } from '@clerk/express';
 
 const router = Router();
 
-router.use(authMiddleware);
 
 /**
  * @swagger

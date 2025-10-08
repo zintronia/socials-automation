@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { oauth2TwitterController } from '../controllers/oauth2-twitter.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
-
-// Apply authentication middleware to all routes
-router.use(authMiddleware);
 
 /**
  * @swagger
@@ -77,7 +73,7 @@ router.use(authMiddleware);
  *       500:
  *         description: Failed to generate OAuth 2.0 URL
  */
-router.post('/initiate', oauth2TwitterController.initiateAuth);
+router.post('/initiate', (req, res) => oauth2TwitterController.initiateAuth(req as any, res));
 
 /**
  * @swagger
@@ -183,7 +179,7 @@ router.post('/initiate', oauth2TwitterController.initiateAuth);
  *       500:
  *         description: Failed to complete OAuth 2.0 flow
  */
-router.post('/callback', oauth2TwitterController.handleCallback);
+router.post('/callback', (req, res) => oauth2TwitterController.handleCallback(req as any, res));
 
 /**
  * @swagger
@@ -261,7 +257,7 @@ router.post('/callback', oauth2TwitterController.handleCallback);
  *       500:
  *         description: Failed to get connected accounts
  */
-router.get('/accounts', oauth2TwitterController.getConnectedAccounts);
+router.get('/accounts', (req, res) => oauth2TwitterController.getConnectedAccounts(req as any, res));
 
 /**
  * @swagger
@@ -313,7 +309,7 @@ router.get('/accounts', oauth2TwitterController.getConnectedAccounts);
  *       500:
  *         description: Failed to refresh access token
  */
-router.post('/accounts/:accountId/refresh', oauth2TwitterController.refreshToken);
+router.post('/accounts/:accountId/refresh', (req, res) => oauth2TwitterController.refreshToken(req as any, res));
 
 /**
  * @swagger
@@ -345,7 +341,7 @@ router.post('/accounts/:accountId/refresh', oauth2TwitterController.refreshToken
  *       500:
  *         description: Failed to disconnect Twitter account
  */
-router.delete('/accounts/:accountId/disconnect', oauth2TwitterController.disconnectAccount);
+router.delete('/accounts/:accountId/disconnect', (req, res) => oauth2TwitterController.disconnectAccount(req as any, res));
 
 /**
  * @swagger
@@ -398,7 +394,7 @@ router.delete('/accounts/:accountId/disconnect', oauth2TwitterController.disconn
  *       500:
  *         description: Failed to get account statistics
  */
-router.get('/stats', oauth2TwitterController.getAccountStats);
+router.get('/stats', (req, res) => oauth2TwitterController.getAccountStats(req as any, res));
 
 /**
  * @swagger
@@ -464,7 +460,7 @@ router.get('/stats', oauth2TwitterController.getAccountStats);
  *       500:
  *         description: Failed to validate OAuth state
  */
-router.get('/state/:state/validate', oauth2TwitterController.validateState);
+router.get('/state/:state/validate', (req, res) => oauth2TwitterController.validateState(req as any, res));
 
 /**
  * @swagger
@@ -517,6 +513,6 @@ router.get('/state/:state/validate', oauth2TwitterController.validateState);
  *       500:
  *         description: Failed to get access token
  */
-router.get('/accounts/:accountId/token', oauth2TwitterController.getAccessToken);
+router.get('/accounts/:accountId/token', (req, res) => oauth2TwitterController.getAccessToken(req as any, res));
 
 export default router; 

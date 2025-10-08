@@ -6,8 +6,8 @@ import { PostControls } from "./PostControls";
 import { PostCardRenderer } from "./PostCardRenderer";
 import { buildISOFromDateTime } from "./utils";
 import type { ScheduleState, ScheduleEntry, PostControlsHandlers } from "./types";
-import { usePublishPostMutation, useSchedulePostMutation } from "@/features/posts/services/postApi";
-import { Loader } from "../ai-elements/loader";
+import { usePublishPostMutation, useSchedulePostMutation } from "@/features/posts/services/api";
+import { Loader } from "../ui/loader";
 
 export function PostCards({ posts, postLoading }: { posts: Post[], postLoading?: boolean }) {
     const [schedule, setSchedule] = useState<ScheduleState>({});

@@ -3,10 +3,11 @@ import { oauth2RedditService } from '../../../integrations/social/Reddit/oauth2-
 import { socialAccountService } from '../../../services/social-account.service';
 import { respondWithSuccess, respondWithError } from '../../../utils/response.utils';
 import { logger } from '../../../utils/logger.utils';
+import { AuthenticatedRequest } from '../../../types';
 
 export class OAuth2RedditController {
   /** Initiate OAuth 2.0 flow with PKCE (optional depending on app type) */
-  async initiateAuth(req: Request, res: Response) {
+  async initiateAuth(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = (req as any).user?.id;
       const { callbackUrl, scopes } = req.body;
@@ -35,7 +36,7 @@ export class OAuth2RedditController {
   }
 
   /** Handle OAuth 2.0 callback */
-  async handleCallback(req: Request, res: Response) {
+  async handleCallback(req: AuthenticatedRequest, res: Response) {
     try {
       const { code, state } = req.body;
       const userId = (req as any).user?.id;
@@ -68,7 +69,7 @@ export class OAuth2RedditController {
   }
 
   /** Get connected Reddit accounts for user */
-  async getConnectedAccounts(req: Request, res: Response) {
+  async getConnectedAccounts(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = (req as any).user?.id;
       const platformId = 3;
@@ -99,7 +100,7 @@ export class OAuth2RedditController {
   }
 
   /** Refresh access token for a specific account */
-  async refreshToken(req: Request, res: Response) {
+  async refreshToken(req: AuthenticatedRequest, res: Response) {
     try {
       const { accountId } = req.params;
       const userId = (req as any).user?.id;
@@ -123,7 +124,7 @@ export class OAuth2RedditController {
   }
 
   /** Disconnect a Reddit account */
-  async disconnectAccount(req: Request, res: Response) {
+  async disconnectAccount(req: AuthenticatedRequest, res: Response) {
     try {
       const { accountId } = req.params;
       const userId = (req as any).user?.id;

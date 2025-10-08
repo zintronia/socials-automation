@@ -1,11 +1,8 @@
 import { Router } from 'express';
 import { socialAccountController } from '../controllers/social-account.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Apply authentication middleware to all routes
-router.use(authMiddleware);
 
 /**
  * @swagger
@@ -56,7 +53,7 @@ router.use(authMiddleware);
  *       500:
  *         description: Internal server error
  */
-router.post('/connect', socialAccountController.connectAccount);
+router.post('/connect', (req, res) => socialAccountController.connectAccount(req as any, res));
 
 /**
  * @swagger
@@ -81,7 +78,7 @@ router.post('/connect', socialAccountController.connectAccount);
  *       500:
  *         description: Internal server error
  */
-router.get('/', socialAccountController.getAccounts);
+router.get('/', (req, res) => socialAccountController.getAccounts(req as any, res));
 
 /**
  * @swagger
@@ -109,7 +106,7 @@ router.get('/', socialAccountController.getAccounts);
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', socialAccountController.getAccount);
+router.get('/:id', (req, res) => socialAccountController.getAccount(req as any, res));
 
 /**
  * @swagger
@@ -137,6 +134,6 @@ router.get('/:id', socialAccountController.getAccount);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', socialAccountController.disconnectAccount);
+router.delete('/:id', (req, res) => socialAccountController.disconnectAccount(req as any, res));
 
 export default router;

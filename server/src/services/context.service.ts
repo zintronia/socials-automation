@@ -6,7 +6,7 @@ import { logger } from '../utils/logger.utils';
 // without any template or platform dependencies
 
 class ContextService {
-    async create(userId: number, contextData: CreateContextRequest): Promise<Context> {
+    async create(userId: string, contextData: CreateContextRequest): Promise<Context> {
         const client = await database.getClient();
         try {
             await client.query('BEGIN');
@@ -45,7 +45,7 @@ class ContextService {
         }
     }
 
-    async getById(id: number, userId: number): Promise<Context | null> {
+    async getById(id: number, userId: string): Promise<Context | null> {
         const query = `
             SELECT c.*
             FROM contexts c
@@ -55,7 +55,7 @@ class ContextService {
         return result.rows[0] || null;
     }
 
-    async getByUser(userId: number, filters?: any): Promise<Context[]> {
+    async getByUser(userId: string, filters?: any): Promise<Context[]> {
         let query = `
             SELECT c.*
             FROM contexts c
@@ -81,7 +81,7 @@ class ContextService {
         return result.rows;
     }
 
-    async update(id: number, userId: number, updateData: UpdateContextRequest): Promise<Context> {
+    async update(id: number, userId: string, updateData: UpdateContextRequest): Promise<Context> {
         const allowedFields = ['title', 'topic', 'brief', 'content', 'source', 'type', 'mimetype', 'size'];
         const setClause = [];
         const values = [];
@@ -118,12 +118,12 @@ class ContextService {
     }
 
     // markAsProcessed is no longer needed as processing is handled elsewhere
-    async markAsProcessed(id: number, userId: number): Promise<void> {
+    async markAsProcessed(id: number, userId: string): Promise<void> {
         logger.warn('markAsProcessed is deprecated and has no effect');
         return Promise.resolve();
     }
 
-    async delete(id: number, userId: number): Promise<boolean> {
+    async delete(id: number, userId: string): Promise<boolean> {
         const client = await database.getClient();
         try {
             await client.query('BEGIN');

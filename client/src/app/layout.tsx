@@ -3,8 +3,7 @@ import { GeistSans } from "geist/font/sans"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { ReduxProvider } from "@/providers/redux-provider"
-import { AuthProvider } from "@/features/auth/providers/auth-provider"
-import { AuthHydration } from "@/features/auth/components/AuthHydration"
+import { AuthProvider } from '@/features/auth/provider'
 
 export const metadata: Metadata = {
   title: "Markandle - Social Media Automation",
@@ -25,13 +24,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${GeistSans.className} min-h-screen bg-background`}>
         <ReduxProvider>
-          <AuthHydration />
           <AuthProvider>
             {children}
           </AuthProvider>
-          <Toaster position="top-right" />
         </ReduxProvider>
+        <Toaster position="top-right" />
       </body>
     </html>
-  )
+  );
 }

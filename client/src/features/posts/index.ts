@@ -1,5 +1,5 @@
 // Export API and hooks
-export * from './services/postApi';
+export * from './services/api';
 
 // Export slice and actions
 export { default as postReducer } from './postSlice';

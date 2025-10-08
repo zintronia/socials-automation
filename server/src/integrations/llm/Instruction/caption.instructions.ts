@@ -40,17 +40,15 @@ Do not include explanations or metadata.
     }
 
     protected buildUserPrompt(context: Context | undefined, template: ContextTemplate, prompt?: string): string {
-        // If raw prompt is provided, use it directly as the main content source
-        if (prompt && prompt.trim().length > 0) {
-            return prompt.trim();
-        }
 
-        if (!context) {
-            // Fallback safety: if neither prompt nor context is available
+        if (!context && (!prompt || prompt.trim().length === 0)) {
             return 'Create a short, engaging social media post based on the template settings.';
         }
 
-        let composed = `
+
+        let composed = '';
+        if (context) {
+            composed += `
 CONTENT SOURCE:
 Title: ${context.title}
 Topic: ${context.topic || 'Not specified'}
@@ -65,15 +63,24 @@ ADDITIONAL CONTEXT:
 - Source Type: ${context.type}
 `;
 
-        if (context.template_variables) {
-            composed += `\n\nTEMPLATE VARIABLES:\n`;
-            Object.entries(context.template_variables).forEach(([key, value]) => {
-                composed += `- ${key}: ${value}\n`;
-            });
+            if (context.template_variables) {
+                composed += `\n\nTEMPLATE VARIABLES:\n`;
+                Object.entries(context.template_variables).forEach(([key, value]) => {
+                    composed += `- ${key}: ${value}\n`;
+                });
+            }
+
         }
 
         composed += this.getCategorySpecificInstructions(template?.category_id);
-        composed += `\n\nGenerate an engaging ${template.tone} post that will resonate with ${template.target_audience}.`;
+
+        if (prompt && prompt.trim().length > 0) {
+            composed += `\n\nUSER INSTRUCTIONS:\n${prompt.trim()}`;
+        }
+
+        composed += `\n\nGenerate an engaging ${template?.tone || 'neutral'} post that will resonate with ${template?.target_audience || 'a broad audience'}.`;
+
+
         return composed.trim();
     }
 

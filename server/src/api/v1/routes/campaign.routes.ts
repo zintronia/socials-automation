@@ -1,13 +1,9 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
 
 import { createCampaignSchema, updateCampaignSchema } from '../validation/validation';
 import { campaignController } from '../controllers/campaign.controller';
-
 const router = Router();
-
-router.use(authMiddleware);
 
 /**
  * @swagger

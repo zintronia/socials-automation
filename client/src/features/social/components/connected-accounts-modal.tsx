@@ -16,11 +16,11 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
-import { Loader } from "@/components/ai-elements/loader";
+import { Loader } from "@/components/ui/loader";
 import {
     useGetSocialAccountsQuery,
     useDisconnectAccountMutation,
-} from "../services/socialApi";
+} from "../services/api";
 import {
     AlertDialog,
     AlertDialogAction,

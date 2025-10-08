@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import React from "react";
-import { useGetSocialAccountsQuery } from "../services/socialApi";
-import { Loader } from "@/components/ai-elements/loader";
+import { useGetSocialAccountsQuery } from "../services/api";
+import { Loader } from "@/components/ui/loader";
 import {
   Avatar,
   AvatarFallback,

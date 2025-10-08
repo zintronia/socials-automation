@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { socialApi } from './services/socialApi';
+import { socialApi } from './services/api';
 import { SocialAccount, Platform, SocialState } from './types';
 
 const initialState: SocialState = {

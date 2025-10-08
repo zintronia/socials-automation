@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import { platformService } from '../../../services/platform.service';
 import { respondWithSuccess, respondWithError } from '../../../utils/response.utils';
 import { logger } from '../../../utils/logger.utils';
+import { AuthenticatedRequest } from '../../../types';
 
 export class PlatformController {
-    async getById(req: Request, res: Response): Promise<void> {
+    async getById(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const platformId = parseInt(req.params.id);
             const platform = await platformService.getById(platformId);
@@ -19,7 +20,7 @@ export class PlatformController {
         }
     }
 
-    async getAll(req: Request, res: Response): Promise<void> {
+    async getAll(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const platforms = await platformService.getAll();
             respondWithSuccess(res, platforms, 'Platforms retrieved successfully');

@@ -1,12 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { templateController } from '../controllers/template.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
 import { createTemplateSchema } from '../validation/validation';
-
 const router = Router();
-
-router.use(authMiddleware);
 
 /**
  * @swagger

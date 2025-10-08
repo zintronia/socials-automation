@@ -3,7 +3,7 @@ import { ContextTemplate, CreateTemplateRequest, UpdateTemplateRequest } from '.
 import { logger } from '../utils/logger.utils';
 
 class TemplateService {
-    async create(userId: number, templateData: CreateTemplateRequest): Promise<ContextTemplate> {
+    async create(userId: string, templateData: CreateTemplateRequest): Promise<ContextTemplate> {
         const query = `
       INSERT INTO context_templates (
         user_id, platform_id, category_id, name, description,
@@ -40,7 +40,7 @@ class TemplateService {
         return template;
     }
 
-    async getById(id: number, userId?: number): Promise<ContextTemplate | null> {
+    async getById(id: number, userId?: string): Promise<ContextTemplate | null> {
         const query = `
       SELECT 
         ct.*,
@@ -70,7 +70,7 @@ class TemplateService {
         return result.rows[0] || null;
     }
 
-    async getByUser(userId: number, filters?: any): Promise<ContextTemplate[]> {
+    async getByUser(userId: string, filters?: any): Promise<ContextTemplate[]> {
         let query = `
       SELECT 
         ct.*,
@@ -98,7 +98,7 @@ class TemplateService {
 
 
 
-    async update(templateId: number, userId: number, updateData: UpdateTemplateRequest): Promise<ContextTemplate | null> {
+    async update(templateId: number, userId: string, updateData: UpdateTemplateRequest): Promise<ContextTemplate | null> {
         // First check if template exists and user has access
         const existingTemplate = await this.getById(templateId, userId);
         if (!existingTemplate) {
@@ -187,7 +187,7 @@ class TemplateService {
         `;
 
         const result = await database.query(query, values);
-        
+
         if (result.rows.length === 0) {
             return null;
         }

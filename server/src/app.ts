@@ -9,9 +9,7 @@ import { database } from './config/database';
 import { redisService } from './config/redis';
 import { logger } from './utils/logger.utils';
 import { errorMiddleware } from './api/v1/middleware/error.middleware';
-import { rateLimitMiddleware } from './api/v1/middleware/rate-limit.middleware';
 import { specs } from './config/swagger';
-import { authRoutes } from './api/v1/routes/auth.routes';
 import { contextRoutes } from './api/v1/routes/context.routes';
 import { templateRoutes } from './api/v1/routes/template.routes';
 import { postRoutes } from './api/v1/routes/post.routes';
@@ -21,7 +19,9 @@ import socialAccountRoutes from './api/v1/routes/social-account.routes';
 import oauth2TwitterRoutes from './api/v1/routes/oauth2-twitter.routes';
 import oauth2LinkedInRoutes from './api/v1/routes/oauth2-linkedin.routes';
 import oauth2RedditRoutes from './api/v1/routes/oauth2-reddit.routes';
-import { initPostScheduler } from './jobs/post-scheduler';
+import { clerkMiddleware } from '@clerk/express'
+import { clerkAuthMiddleware } from './api/v1/middleware/clerk-auth.middleware';
+import { webhookRoutes } from './api/v1/routes/webhooks';
 
 class Application {
     public app: express.Application;
@@ -45,7 +45,8 @@ class Application {
 
         // Performance middleware
         this.app.use(compression());
-        this.app.use(rateLimitMiddleware);
+
+        this.app.use(clerkMiddleware())
 
         // Body parsing middleware
         this.app.use(express.json({ limit: '10mb' }));
@@ -108,19 +109,22 @@ class Application {
             }
         }));
 
-        // API routes
-        this.app.use(`${this.apiPrefix}/auth`, authRoutes);
-        this.app.use(`${this.apiPrefix}/platforms`, platformRoutes);
-        this.app.use(`${this.apiPrefix}/contexts`, contextRoutes);
-        this.app.use(`${this.apiPrefix}/templates`, templateRoutes);
-        this.app.use(`${this.apiPrefix}/posts`, postRoutes);
-        this.app.use(`${this.apiPrefix}/campaigns`, campaignRoutes);
+        // API routes 
+        this.app.use(`${this.apiPrefix}/platforms`, clerkAuthMiddleware, platformRoutes);
+        this.app.use(`${this.apiPrefix}/contexts`, clerkAuthMiddleware, contextRoutes);
+        this.app.use(`${this.apiPrefix}/templates`, clerkAuthMiddleware, templateRoutes);
+        this.app.use(`${this.apiPrefix}/posts`, clerkAuthMiddleware, postRoutes);
+        this.app.use(`${this.apiPrefix}/campaigns`, clerkAuthMiddleware, campaignRoutes);
 
         // social media integration routes
-        this.app.use(`${this.apiPrefix}/social-accounts`, socialAccountRoutes);
-        this.app.use(`${this.apiPrefix}/oauth2/twitter`, oauth2TwitterRoutes);
-        this.app.use(`${this.apiPrefix}/oauth2/linkedin`, oauth2LinkedInRoutes);
-        this.app.use(`${this.apiPrefix}/oauth2/reddit`, oauth2RedditRoutes);
+        this.app.use(`${this.apiPrefix}/social-accounts`, clerkAuthMiddleware, socialAccountRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/twitter`, clerkAuthMiddleware, oauth2TwitterRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/linkedin`, clerkAuthMiddleware, oauth2LinkedInRoutes);
+        this.app.use(`${this.apiPrefix}/oauth2/reddit`, clerkAuthMiddleware, oauth2RedditRoutes);
+
+        //webhook routes
+        this.app.use(`${this.apiPrefix}/webhooks`, webhookRoutes);
+
 
         // 404 handler
         this.app.use('*', (req, res) => {
@@ -160,8 +164,6 @@ class Application {
                 logger.info(`- API Base URL:   ${baseUrl}${this.apiPrefix}`);
             });
 
-            // Initialize post scheduler (dev: node-cron, prod: BullMQ)
-            await initPostScheduler();
 
         } catch (error) {
             logger.error('Failed to start application:', error);

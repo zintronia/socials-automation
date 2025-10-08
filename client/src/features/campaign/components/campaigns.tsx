@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Search, Edit, Trash2, Calendar, FileText } from 'lucide-react';
-import { useGetCampaignsQuery, useDeleteCampaignMutation } from '../services/campaignApi';
+import { useGetCampaignsQuery, useDeleteCampaignMutation } from '../services/api';
 import { toast } from 'sonner';
 import { Campaign } from '../types';
 import ComponentCard from '@/components/ComponentCard';

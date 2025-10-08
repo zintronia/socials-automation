@@ -8,16 +8,29 @@ export class PostController {
     async generatePost(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const userId = req.user.id;
-            const { context_id, platform_id, campaign_id, scheduled_for, prompt, social_account_id } = req.body;
+            const { context_id, platform_id, campaign_id, scheduled_for, prompt, social_account_ids } = req.body;
             const post = await postService.generateAndCreate(userId, {
                 context_id,
                 platform_id,
                 campaign_id,
                 scheduled_for: scheduled_for ? new Date(scheduled_for) : undefined,
                 prompt,
-                social_account_id
+                social_account_ids
             });
-            respondWithSuccess(res, post, 'Post generated successfully', 201);
+            
+            // If social accounts are provided, link them to the post
+            if (social_account_ids && Array.isArray(social_account_ids) && social_account_ids.length > 0) {
+                await postService.linkPostToSocialAccounts(post.id, social_account_ids, userId);
+                
+                // If scheduled_for is provided, schedule the post
+                if (scheduled_for) {
+                    await postService.schedulePost(post.id, userId, new Date(scheduled_for), social_account_ids);
+                }
+            }
+            
+            // Return the post with linked accounts
+            const updatedPost = await postService.getById(post.id, userId);
+            respondWithSuccess(res, updatedPost, 'Post generated successfully', 201);
         } catch (error: any) {
             logger.error('Post generation error:', error);
             respondWithError(res, error.message || 'Failed to generate post', 400);
@@ -64,7 +77,7 @@ export class PostController {
                 context_id?: number;
                 campaign_id?: number;
                 prompt: string;
-                platforms: Array<{ platform_id: number; scheduled_for?: string | Date; template_id?: number; social_account_id?: number }>;
+                platforms: Array<{ platform_id: number; scheduled_for?: string | Date; template_id?: number; social_account_ids?: number[] }>;
             };
 
             if (!Array.isArray(platforms) || platforms.length === 0) {
@@ -84,9 +97,19 @@ export class PostController {
                         template_id: item.template_id,
                         campaign_id,
                         prompt,
-                        social_account_id: item.social_account_id,
+                        social_account_ids: item.social_account_ids,
                         scheduled_for: item.scheduled_for ? new Date(item.scheduled_for) : undefined,
                     });
+                    
+                    // Link social accounts if provided
+                    if (item.social_account_ids && Array.isArray(item.social_account_ids) && item.social_account_ids.length > 0) {
+                        await postService.linkPostToSocialAccounts(post.id, item.social_account_ids, userId);
+                        
+                        // Schedule if needed
+                        if (item.scheduled_for) {
+                            await postService.schedulePost(post.id, userId, new Date(item.scheduled_for), item.social_account_ids);
+                        }
+                    }
                     results.push(post);
                 } catch (error: any) {
                     logger.error('Bulk post generation platform item failed', { index: i, platform_id: item.platform_id, error });
@@ -116,12 +139,12 @@ export class PostController {
         try {
             const userId = req.user.id;
             const postId = parseInt(req.params.id);
-            const { scheduled_for } = req.body;
+            const { scheduled_for, social_account_ids } = req.body;
             if (!scheduled_for) {
                 respondWithError(res, 'scheduled_for is required', 400);
                 return;
             }
-            const post = await postService.schedulePost(postId, userId, new Date(scheduled_for));
+            const post = await postService.schedulePost(postId, userId, new Date(scheduled_for), social_account_ids);
             respondWithSuccess(res, post, 'Post scheduled successfully');
         } catch (error: any) {
             logger.error('Post scheduling error:', error);
@@ -133,7 +156,8 @@ export class PostController {
         try {
             const userId = req.user.id;
             const postId = parseInt(req.params.id);
-            const post = await postService.publishPost(postId, userId);
+            const { social_account_id } = req.body; // Optional: publish to specific account
+            const post = await postService.publishPost(postId, userId, social_account_id);
             respondWithSuccess(res, post, 'Post published successfully');
         } catch (error: any) {
             logger.error('Post publishing error:', error);
@@ -148,6 +172,57 @@ export class PostController {
         } catch (error) {
             logger.error('Post deletion error:', error);
             respondWithError(res, 'Failed to delete post', 500);
+        }
+    }
+
+    // New methods for post-account management
+    async linkSocialAccounts(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user.id;
+            const postId = parseInt(req.params.id);
+            const { social_account_ids } = req.body;
+            
+            if (!Array.isArray(social_account_ids) || social_account_ids.length === 0) {
+                respondWithError(res, 'social_account_ids must be a non-empty array', 400);
+                return;
+            }
+            
+            const postAccounts = await postService.linkPostToSocialAccounts(postId, social_account_ids, userId);
+            respondWithSuccess(res, postAccounts, 'Social accounts linked successfully');
+        } catch (error: any) {
+            logger.error('Link social accounts error:', error);
+            respondWithError(res, error.message || 'Failed to link social accounts', 400);
+        }
+    }
+
+    async unlinkSocialAccount(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user.id;
+            const postId = parseInt(req.params.id);
+            const socialAccountId = parseInt(req.params.accountId);
+            
+            const success = await postService.unlinkPostFromSocialAccount(postId, socialAccountId, userId);
+            if (success) {
+                respondWithSuccess(res, null, 'Social account unlinked successfully');
+            } else {
+                respondWithError(res, 'Social account not found or already unlinked', 404);
+            }
+        } catch (error: any) {
+            logger.error('Unlink social account error:', error);
+            respondWithError(res, error.message || 'Failed to unlink social account', 400);
+        }
+    }
+
+    async getPostAccounts(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user.id;
+            const postId = parseInt(req.params.id);
+            
+            const postAccounts = await postService.getPostAccounts(postId, userId);
+            respondWithSuccess(res, postAccounts, 'Post accounts retrieved successfully');
+        } catch (error: any) {
+            logger.error('Get post accounts error:', error);
+            respondWithError(res, error.message || 'Failed to retrieve post accounts', 400);
         }
     }
 }

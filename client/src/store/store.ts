@@ -1,22 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import authReducer from '@/features/auth/authSlice';
-import { authApi } from '@/features/auth/services/authApi';
-import { templateApi } from '@/features/templates/services/templateApi';
+import { templateApi } from '@/features/templates/services/api';
 import templateReducer from '@/features/templates/templateSlice';
-import { contextApi } from '@/features/context/services/contextApi';
+import { contextApi } from '@/features/context/services/api';
 import contextReducer from '@/features/context/contextSlice';
-import { postApi } from '@/features/posts/services/postApi';
+import { postApi } from '@/features/posts/services/api';
 import postReducer from '@/features/posts/postSlice';
-import { campaignApi } from '@/features/campaign/services/campaignApi';
+import { campaignApi } from '@/features/campaign/services/api';
 import campaignReducer from '@/features/campaign/campaignSlice';
-import { socialApi } from '@/features/social/services/socialApi';
+import { socialApi } from '@/features/social/services/api';
 import socialReducer from '@/features/social/socialSlice';
-import { persistenceMiddlewareEnhancer } from '@/features/auth/middleware/authPersistenceMiddleware';
+import authReducer from '@/features/auth/slice';
 
 export const store = configureStore({
   reducer: {
-    [authApi.reducerPath]: authApi.reducer,
     [templateApi.reducerPath]: templateApi.reducer,
     [contextApi.reducerPath]: contextApi.reducer,
     [postApi.reducerPath]: postApi.reducer,
@@ -30,26 +27,16 @@ export const store = configureStore({
     social: socialReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-      },
-    })
-      .concat(
-        persistenceMiddlewareEnhancer,
-        authApi.middleware,
-        templateApi.middleware,
-        contextApi.middleware,
-        postApi.middleware,
-        campaignApi.middleware,
-        socialApi.middleware,
-      ),
+    getDefaultMiddleware()
+      .concat(templateApi.middleware)
+      .concat(contextApi.middleware)
+      .concat(postApi.middleware)
+      .concat(campaignApi.middleware)
+      .concat(socialApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 
-// Enable refetchOnFocus/refetchOnReconnect behaviors
 setupListeners(store.dispatch);
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

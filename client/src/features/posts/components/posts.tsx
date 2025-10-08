@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Loader2 } from 'lucide-react';
-import { useGetPostsQuery } from '../services/postApi';
+import { useGetPostsQuery } from '../services/api';
 import { PostCards } from '@/components/post-cards/post-cards';
 import { PostFilters } from '../types';
 import { socialPlatforms } from '@/lib/constant';

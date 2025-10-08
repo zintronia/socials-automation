@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { campaignApi } from './services/campaignApi';
+import { campaignApi } from './services/api';
 import { Campaign, CampaignState } from './types';
 
 const initialState: CampaignState = {

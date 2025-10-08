@@ -6,18 +6,17 @@ import { socialPlatforms } from "@/lib/constant";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Contexts } from "@/features/context";
 import { Template } from "@/features/templates/types";
 import { Context } from "@/features/context/types";
-import { useGetSocialAccountsQuery } from "@/features/social/services/socialApi";
+import { useGetSocialAccountsQuery } from "@/features/social/services/api";
 import { useAutoResizeTextarea } from "./hooks/useAutoResizeTextarea";
 import type { AI_PromptProps, SelectedPlatform } from "./types";
 import { PlatformRow } from "./components/PlatformRow";
 import { toast } from "sonner";
-import { Loader } from "../ai-elements/loader";
+import { Loader } from "../ui/loader";
 
 
 export function AI_Prompt({
@@ -40,7 +39,6 @@ export function AI_Prompt({
     const [generatingPost, setGeneratingPost] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    console.log("Selected Platforms:", selectedPlatforms);
 
     const AI_MODELS = [
         "o3-mini",
