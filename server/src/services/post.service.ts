@@ -33,7 +33,7 @@ class PostService {
     `;
         const postAccountsParams = socialAccountId ? [id, socialAccountId] : [id];
         const postAccountsResult = await database.query(postAccountsQuery, postAccountsParams);
-        
+
         if (postAccountsResult.rows.length === 0) {
             throw new Error('No social accounts linked to this post');
         }
@@ -111,7 +111,7 @@ class PostService {
         // Update main post status based on results
         const allPublished = results.length === postAccountsResult.rows.length;
         const newPostStatus = allPublished ? 'published' : (results.length > 0 ? 'partially_published' : 'failed');
-        
+
         await database.query(
             'UPDATE posts SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
             [newPostStatus, id]
@@ -336,7 +336,7 @@ GROUP BY p.id, c.title, t.name, pl.name, pc.title, p.status, p.content;
         const postQuery = 'SELECT * FROM posts WHERE id = $1 AND user_id = $2';
         const postResult = await database.query(postQuery, [id, userId]);
         if (postResult.rows.length === 0) throw new Error('Post not found or not accessible');
-        
+
         const post = postResult.rows[0];
 
         // Get post_accounts to schedule
@@ -346,7 +346,7 @@ GROUP BY p.id, c.title, t.name, pl.name, pc.title, p.status, p.content;
     `;
         const postAccountsParams = socialAccountIds ? [id, socialAccountIds] : [id];
         const postAccountsResult = await database.query(postAccountsQuery, postAccountsParams);
-        
+
         if (postAccountsResult.rows.length === 0) {
             throw new Error('No social accounts found for scheduling');
         }
@@ -374,7 +374,7 @@ GROUP BY p.id, c.title, t.name, pl.name, pc.title, p.status, p.content;
         } catch (e) {
             logger.warn('Failed to enqueue scheduled post (will rely on scanner)', { id, error: e });
         }
-        
+
         return { ...post, status: 'ready', scheduled_for: scheduledFor };
     }
 

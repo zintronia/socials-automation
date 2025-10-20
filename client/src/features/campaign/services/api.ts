@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, } from '@reduxjs/toolkit/query/react';
 import {
     Campaign,
     CreateCampaignRequest,
@@ -8,7 +8,6 @@ import {
     CampaignFilters,
     CampaignStats,
 } from '../types';
-import { useAuth } from '@clerk/nextjs'
 import { baseQuery } from '@/lib/api/baseApi';
 
 

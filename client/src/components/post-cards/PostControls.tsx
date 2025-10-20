@@ -1,14 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { Post } from "@/features/posts/types";
 import type { ScheduleEntry, PostControlsHandlers } from "./types";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Calendar as CalendarIcon, X as XIcon } from "lucide-react";
+import { Calendar as CalendarIcon, X as XIcon, Users } from "lucide-react";
 import { formatISOForDisplay } from "./utils";
+import { SocialAccountSelector } from "./SocialAccountSelector";
+import { LinkedAccountsDisplay } from "./LinkedAccountsDisplay";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export function PostControls({
   post,
@@ -19,6 +22,7 @@ export function PostControls({
   schedule: ScheduleEntry;
   handlers: PostControlsHandlers;
 }) {
+  const [showAccountSelector, setShowAccountSelector] = useState(false);
   const mode = schedule.mode || "idle";
   const dateLabel = schedule.date
     ? `${schedule.date.toDateString()}${schedule.time ? ` • ${schedule.time}` : ""}`
@@ -28,20 +32,56 @@ export function PostControls({
   // Prefer server truth for status display
   if ((post.status || '').toLowerCase() === 'published') {
     return (
-      <div className="mt-1 flex items-center justify-between rounded-md bg-emerald-50 dark:bg-emerald-900/10 px-2 py-1 text-emerald-700 dark:text-emerald-400 text-xs">
-        <span>
-          This post was published at {formatISOForDisplay((post as any).published_at || schedule.publishedAt)}
-        </span>
+      <div className="mt-1 space-y-2">
+        <div className="flex items-center justify-between">
+          <LinkedAccountsDisplay post={post} maxVisible={2} />
+          <Dialog open={showAccountSelector} onOpenChange={setShowAccountSelector}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="ghost" className="h-6 px-1.5 text-xs">
+                <Users className="h-3 w-3" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <SocialAccountSelector 
+                post={post} 
+                onClose={() => setShowAccountSelector(false)} 
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="rounded-md bg-emerald-50 dark:bg-emerald-900/10 px-2 py-1 text-emerald-700 dark:text-emerald-400 text-xs">
+          <span>
+            Published at {formatISOForDisplay((post as any).published_at || schedule.publishedAt)}
+          </span>
+        </div>
       </div>
     );
   }
 
   if ((post.status || '').toLowerCase() === 'scheduled') {
     return (
-      <div className="mt-1 flex items-center justify-between rounded-md bg-blue-50 dark:bg-blue-900/10 px-2 py-1 text-blue-700 dark:text-blue-400 text-xs">
-        <span>
-          Post scheduled for {formatISOForDisplay((post as any).scheduled_for || schedule.scheduledISO)}
-        </span>
+      <div className="mt-1 space-y-2">
+        <div className="flex items-center justify-between">
+          <LinkedAccountsDisplay post={post} maxVisible={2} />
+          <Dialog open={showAccountSelector} onOpenChange={setShowAccountSelector}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="ghost" className="h-6 px-1.5 text-xs">
+                <Users className="h-3 w-3" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <SocialAccountSelector 
+                post={post} 
+                onClose={() => setShowAccountSelector(false)} 
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="rounded-md bg-blue-50 dark:bg-blue-900/10 px-2 py-1 text-blue-700 dark:text-blue-400 text-xs">
+          <span>
+            Scheduled for {formatISOForDisplay((post as any).scheduled_for || schedule.scheduledISO)}
+          </span>
+        </div>
       </div>
     );
   }
@@ -122,20 +162,54 @@ export function PostControls({
 
   // idle
   return (
-    <div className="mt-1 flex items-center gap-1">
-      {(post.status || '').toLowerCase() !== 'published' && (
-        <Button
-          size="sm"
-          variant="secondary"
-          className="h-7 px-2 text-xs"
-          onClick={() => handlers.onPublishNow(post)}
-        >
-          Publish now
-        </Button>
-      )}
-      <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handlers.startScheduling(post.id)}>
-        Schedule later
-      </Button>
+    <div className="mt-1 space-y-2">
+      {/* Elegant Social Accounts Display */}
+      <div className="flex items-center justify-between">
+        <LinkedAccountsDisplay post={post} maxVisible={2} />
+        <Dialog open={showAccountSelector} onOpenChange={setShowAccountSelector}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="ghost" className="h-6 px-1.5 text-xs">
+              <Users className="h-3 w-3" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <SocialAccountSelector 
+              post={post} 
+              onClose={() => setShowAccountSelector(false)} 
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="flex items-center gap-1">
+        {(post.status || '').toLowerCase() !== 'published' && post.social_accounts.length > 0 && (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-7 px-2 text-xs"
+            onClick={() => handlers.onPublishNow(post)}
+          >
+            Publish now
+          </Button>
+        )}
+        {post.social_accounts.length > 0 && (
+          <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handlers.startScheduling(post.id)}>
+            Schedule later
+          </Button>
+        )}
+        {post.social_accounts.length === 0 && (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-7 px-2 text-xs"
+            onClick={() => setShowAccountSelector(true)}
+          >
+            <Users className="h-3 w-3 mr-1" />
+            Link Accounts
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

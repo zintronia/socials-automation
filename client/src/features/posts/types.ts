@@ -1,7 +1,14 @@
 export interface PostSocialAccount {
+  id: number;
   account_name?: string | null;
   account_username?: string | null;
   profile_image_url?: string | null;
+  platform_id: number;
+  scheduled_for?: string | null;
+  published_at?: string | null;
+  platform_post_id?: string | null;
+  platform_url?: string | null;
+  status: 'scheduled' | 'publishing' | 'published' | 'failed';
 }
 
 export interface Post {
@@ -10,7 +17,7 @@ export interface Post {
   template_name?: string | null;
   platform_name: string;
   campaign_name?: string | null;
-  social_account?: PostSocialAccount | null;
+  social_accounts: PostSocialAccount[]; // Changed from single object to array
   status: 'draft' | 'scheduled' | 'published' | 'failed';
   scheduled_for?: string | null;
   published_at?: string | null;
@@ -39,7 +46,7 @@ export interface GeneratePayload {
     platform_id: number;
     template_id?: number | undefined;
     scheduled_for?: string | null;
-    social_account_id: number;
+    social_account_ids: number[]; // Changed from single social_account_id to array
   }>;
 };
 

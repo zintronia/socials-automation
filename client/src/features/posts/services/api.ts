@@ -7,7 +7,8 @@ import {
   PostResponse,
   PostsListResponse,
   GeneratedResponse,
-  GeneratePayload
+  GeneratePayload,
+  PostSocialAccount
 } from '../types';
 import { useAuth } from '@clerk/nextjs'
 import { baseQuery } from '@/lib/api/baseApi';
@@ -116,6 +117,67 @@ export const postApi = createApi({
         { type: 'Post', id: 'LIST' },
       ],
     }),
+
+    // Post-Account Management
+    linkSocialAccounts: builder.mutation<PostSocialAccount[], { postId: number; social_account_ids: number[] }>({
+      query: ({ postId, social_account_ids }) => ({
+        url: `/posts/${postId}/accounts`,
+        method: 'POST',
+        body: { social_account_ids },
+      }),
+      transformResponse: (response: { success: boolean; data: PostSocialAccount[] }) => response.data,
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'LIST' },
+      ],
+      // Optimistically update the cache
+      async onQueryStarted({ postId }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: newAccounts } = await queryFulfilled;
+          // Update the posts list cache
+          dispatch(
+            postApi.util.updateQueryData('getPosts', undefined, (draft) => {
+              const post = draft.find(p => p.id === postId);
+              if (post) {
+                post.social_accounts = newAccounts;
+              }
+            })
+          );
+        } catch {}
+      },
+    }),
+
+    unlinkSocialAccount: builder.mutation<void, { postId: number; accountId: number }>({
+      query: ({ postId, accountId }) => ({
+        url: `/posts/${postId}/accounts/${accountId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'LIST' },
+      ],
+      // Optimistically update the cache
+      async onQueryStarted({ postId, accountId }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Update the posts list cache
+          dispatch(
+            postApi.util.updateQueryData('getPosts', undefined, (draft) => {
+              const post = draft.find(p => p.id === postId);
+              if (post) {
+                post.social_accounts = post.social_accounts.filter(acc => acc.id !== accountId);
+              }
+            })
+          );
+        } catch {}
+      },
+    }),
+
+    getPostAccounts: builder.query<PostSocialAccount[], number>({
+      query: (postId) => `/posts/${postId}/accounts`,
+      transformResponse: (response: { success: boolean; data: PostSocialAccount[] }) => response.data,
+      providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
+    }),
   }),
 });
 
@@ -129,4 +191,7 @@ export const {
   useDeletePostMutation,
   usePublishPostMutation,
   useSchedulePostMutation,
+  useLinkSocialAccountsMutation,
+  useUnlinkSocialAccountMutation,
+  useGetPostAccountsQuery,
 } = postApi;

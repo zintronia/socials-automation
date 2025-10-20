@@ -529,4 +529,9 @@ router.post('/:id/publish', (req, res) => postController.publish(req as any, res
  */
 router.delete('/:id', (req, res) => postController.delete(req as any, res));
 
+// Post-Account Management Routes
+router.post('/:id/accounts', (req, res) => postController.linkSocialAccounts(req as any, res));
+router.delete('/:id/accounts/:accountId', (req, res) => postController.unlinkSocialAccount(req as any, res));
+router.get('/:id/accounts', (req, res) => postController.getPostAccounts(req as any, res));
+
 export { router as postRoutes }; 

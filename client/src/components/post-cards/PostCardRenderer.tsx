@@ -13,14 +13,17 @@ export function PostCardRenderer({
   post: Post;
   footerSlot?: React.ReactNode;
 }) {
+  // Get the primary social account (first one) for display
+  const primaryAccount = post.social_accounts?.[0];
+  
   switch (post.platform_name) {
     case socialPlatformId.LINKEDIN:
       return (
         <LinkedInCard
           key={post.id}
-          avatarUrl={post.social_account?.profile_image_url || ""}
-          authorName={post.social_account?.account_name || ""}
-          handle={post.social_account?.account_username || ""}
+          avatarUrl={primaryAccount?.profile_image_url || ""}
+          authorName={primaryAccount?.account_name || ""}
+          handle={primaryAccount?.account_username || ""}
           headline=""
           timestamp={post.created_at || ""}
           content={post.content}
@@ -33,9 +36,9 @@ export function PostCardRenderer({
       return (
         <TwitterCard
           key={post.id}
-          avatarUrl={post.social_account?.profile_image_url || ""}
-          authorName={post.social_account?.account_name || ""}
-          handle={post.social_account?.account_username || ""}
+          avatarUrl={primaryAccount?.profile_image_url || ""}
+          authorName={primaryAccount?.account_name || ""}
+          handle={primaryAccount?.account_username || ""}
           timestamp={post?.created_at || ""}
           content={post?.content || ""}
           mediaUrl=""
